@@ -32,7 +32,7 @@ class VideoInfoParser {
   }
 
   List<AdaptiveStreamInfoParser> getAdaptiveStreamInfos() {
-    var streamInfosEncoded = _root['url_encoded_fmt_stream_map'];
+    var streamInfosEncoded = _root['adaptive_fmts'];
 
     if (streamInfosEncoded == null) {
       return List<AdaptiveStreamInfoParser>();

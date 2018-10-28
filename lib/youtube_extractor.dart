@@ -62,7 +62,7 @@ class YouTubeExtractor {
     // Check if video exists by verifying that video ID property is not empty
     if (root['video_id'] == null || root['video_id'].isEmpty) {
       // Get native error code and error reason
-      var errorCode = root['errorcode'] as int;
+      var errorCode = int.tryParse(root['errorcode']);
       var errorReason = root['reason'];
 
       throw new VideoUnavailableException(videoId, errorCode, errorReason);
@@ -70,8 +70,8 @@ class YouTubeExtractor {
     
     // If requested with "sts" parameter, it means that the calling code is interested in getting video info with streams.
     // For that we also need to make sure the video is fully available by checking for errors.
-    if (sts != null && sts.isNotEmpty && root['errorcode'] != null && root['errorcode'] as int != 0) {
-
+    if (sts != null && sts.isNotEmpty && root['errorcode'] != null && int.tryParse(root['errorcode']) != 0) {
+      parser = await _getVideoInfoParserAsync(videoId, "detailpage", sts);
     }
    
     // Return the split string
@@ -156,7 +156,7 @@ class YouTubeExtractor {
 
           // If audio-only
           if (adaptiveStreamInfoParser.parseIsAudioOnly()) {
-            var streamInfo = AudioStreamInfo(itag, url, contentLength, AudioEncoding.values[bitrate]);
+            var streamInfo = AudioStreamInfo(itag, url, contentLength, bitrate);
             audioStreamInfoMap[itag] = streamInfo;       
           } else { // If video-only
             // Extract info
@@ -175,6 +175,11 @@ class YouTubeExtractor {
 
     // Parse dash manifest
     var dashManifestUrl = parser.parseDashManifestUrl();
+    if (dashManifestUrl != null) {
+      // Parse signature
+      var signature = RegExp(r"/s/(.*?)(?:/|$)", multiLine: true).firstMatch(dashManifestUrl).group(1);
+      print(signature);
+    }
 
     // Get the raw HLS stream playlist (*.m3u8)
     var hlsPlaylistUrl = parser.parseHlsPlaylistUrl();

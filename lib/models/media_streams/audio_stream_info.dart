@@ -5,12 +5,12 @@ import 'package:youtube_extractor/models/media_streams/media_stream_info.dart';
 /// Metadata associated with a certain [MediaStream] that contains only audio.
 class AudioStreamInfo extends MediaStreamInfo {
   /// Bitrate (bit/s) of the associated stream.
-  BigInt bitrate;
+  int bitrate;
 
   /// Audio encoding of the associated stream.
   AudioEncoding audioEncoding; 
 
-  AudioStreamInfo(int iTag, String url, int size, this.audioEncoding) : super(iTag, url, size) {
+  AudioStreamInfo(int iTag, String url, int size, this.bitrate) : super(iTag, url, size) {
     audioEncoding = ItagHelper.getAudioEncoding(iTag);
   }
 }

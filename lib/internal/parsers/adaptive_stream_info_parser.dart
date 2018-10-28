@@ -3,23 +3,31 @@ class AdaptiveStreamInfoParser {
 
   AdaptiveStreamInfoParser(this._root);
 
-  int parseItag() => int.parse(_root['itag']);
+  int parseItag() => _getInt(_root['itag']);
 
   String parseUrl() => _root['url'];
 
   String parseSignature() => _root['s'];
 
-  int parseContentLength() => int.parse(_root['clen']);
+  int parseContentLength() => _getInt(_root['clen']);
 
-  int parseBitrate() => int.parse(_root['bitrate']);
+  int parseBitrate() => _getInt(_root['bitrate']);
 
-  bool parseIsAudioOnly() => _root['type'].startsWith('audio/');
+  bool parseIsAudioOnly() => _root['type']?.startsWith('audio/');
 
   int parseWidth() => 0;//_root["size"].SubstringUntil('x').ParseInt();
 
   int parseHeight() => 0;//_root["size"].SubstringAfter('x').ParseInt();
 
-  int parseFramerate() => int.parse(_root['fps']);
+  int parseFramerate() => _getInt(_root['fps']);
 
   String parseQualityLabel() => _root['quality_label'];
+
+  int _getInt(String string) {
+    if (string == null) {
+      return null;
+    }
+
+    return int.tryParse(string);
+  }
 }
