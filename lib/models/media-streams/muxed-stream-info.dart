@@ -21,6 +21,6 @@ class MuxedStreamInfo extends MediaStreamInfo {
     audioEncoding = ItagHelper.GetAudioEncoding(iTag);
     videoEncoding = ItagHelper.GetVideoEncoding(iTag);
     videoQuality = ItagHelper.GetVideoQuality(iTag);
-    videoQualityLabel = VideoQuality.GetVideoQualityLabel();
+    videoQualityLabel = videoQuality.toString() + 'p';
   }
 }

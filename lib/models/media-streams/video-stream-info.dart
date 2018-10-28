@@ -1,6 +1,7 @@
 import 'package:youtube_extractor/models/media-streams/media-stream-info.dart';
 import 'package:youtube_extractor/models/media-streams/video-encoding.dart';
 import 'package:youtube_extractor/models/media-streams/video-quality.dart';
+import 'package:youtube_extractor/models/media-streams/video-resolution.dart';
 
 /// Metadata associated with a certain [MediaStream] that contains only video.
 class VideoStreamInfo extends MediaStreamInfo {
@@ -22,5 +23,5 @@ class VideoStreamInfo extends MediaStreamInfo {
   /// Video quality label of the associated stream.
   String videoQualityLabel;
 
-  VideoStreamInfo(int iTag, String url, BigInt size) : super(iTag, url, size);
+  VideoStreamInfo(int iTag, String url, BigInt size, this.bitrate, this.resolution, this.framerate, this.videoQualityLabel) : super(iTag, url, size);
 }
