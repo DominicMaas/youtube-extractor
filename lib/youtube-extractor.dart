@@ -1,4 +1,7 @@
 import 'package:http/http.dart' as http;
+import 'package:youtube_extractor/models/media-streams/audio-stream-info.dart';
+import 'package:youtube_extractor/models/media-streams/muxed-stream-info.dart';
+import 'package:youtube_extractor/models/media-streams/video-stream-info.dart';
 import 'dart:convert';
 import 'package:youtube_extractor/models/player-context.dart';
 
@@ -12,6 +15,8 @@ class YouTubeExtractor {
     
     // Extract the config part
     var config = RegExp(r"yt\.setConfig\({'PLAYER_CONFIG':.+?\}\);", multiLine: true).firstMatch(body).group(0);
+
+    // Trip off the start and end to get a valid JSON string
     config = config.substring(30, config.length - 3);
 
     // Decode the json
@@ -33,6 +38,21 @@ class YouTubeExtractor {
     return PlayerContext(playerSourceUrl, sts);
   }
   
+  Future<Map<String, String>> _getVideoInfoAsync(String videoId, String el, String sts) async {
+
+    // This parameter does magic and a lot of videos don't work without it
+    var eurl = Uri.encodeFull('https://youtube.googleapis.com/v/$videoId');
+    
+    // Build the url and perform a request
+    var url = "https://www.youtube.com/get_video_info?video_id=$videoId&el=$el&sts=$sts&eurl=$eurl&hl=en";  
+    var body = (await http.get(url)).body;
+
+    // TODO: Error Checking
+
+    // Return the split string
+    return Uri.splitQueryString(body);
+  }
+
   /// Gets a set of all available media stream infos for given video.
   Future<void> getVideoMediaStreamInfosAsync(String videoId) async {
     
@@ -45,6 +65,19 @@ class YouTubeExtractor {
     var playerContext = await _getVideoPlayerContextAsync(videoId);
 
     // Get parser
+    var videoInfo = await _getVideoInfoAsync(videoId, "embedded", playerContext.sts);
+
+    // TODO: Check if requires purchase
+
+    // Prepare stream info maps
+    var muxedStreamInfoMap = new Map<int, MuxedStreamInfo>();
+    var audioStreamInfoMap = new Map<int, AudioStreamInfo>();
+    var videoStreamInfoMap = new Map<int, VideoStreamInfo>();
+
+    // Parse muxed stream infos    
+    var streamInfosEncoded = videoInfo['url_encoded_fmt_stream_map'];
+
+
 
     print(playerContext.sts);
     print(playerContext.sourceUrl);
