@@ -1,5 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'package:youtube_extractor/models/media-streams/audio-stream-info.dart';
+import 'package:youtube_extractor/models/media-streams/media-stream-info-set.dart';
 import 'package:youtube_extractor/models/media-streams/muxed-stream-info.dart';
 import 'package:youtube_extractor/models/media-streams/video-stream-info.dart';
 import 'dart:convert';
@@ -54,7 +55,7 @@ class YouTubeExtractor {
   }
 
   /// Gets a set of all available media stream infos for given video.
-  Future<void> getVideoMediaStreamInfosAsync(String videoId) async {
+  Future<MediaStreamInfoSet> getVideoMediaStreamInfosAsync(String videoId) async {
     
     // Make sure the ID is valid
     if (!validateVideoId(videoId)) {
