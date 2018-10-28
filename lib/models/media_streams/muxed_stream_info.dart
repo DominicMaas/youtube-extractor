@@ -1,8 +1,8 @@
-import 'package:youtube_extractor/internal/itag-helper.dart';
-import 'package:youtube_extractor/models/media-streams/audio-encoding.dart';
-import 'package:youtube_extractor/models/media-streams/media-stream-info.dart';
-import 'package:youtube_extractor/models/media-streams/video-encoding.dart';
-import 'package:youtube_extractor/models/media-streams/video-quality.dart';
+import 'package:youtube_extractor/internal/itag_helper.dart';
+import 'package:youtube_extractor/models/media_streams/audio_encoding.dart';
+import 'package:youtube_extractor/models/media_streams/media_stream_info.dart';
+import 'package:youtube_extractor/models/media_streams/video_encoding.dart';
+import 'package:youtube_extractor/models/media_streams/video_quality.dart';
 
 class MuxedStreamInfo extends MediaStreamInfo {
   /// Audio encoding of the associated stream.

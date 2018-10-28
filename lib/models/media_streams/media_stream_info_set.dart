@@ -1,6 +1,6 @@
-import 'package:youtube_extractor/models/media-streams/audio-stream-info.dart';
-import 'package:youtube_extractor/models/media-streams/muxed-stream-info.dart';
-import 'package:youtube_extractor/models/media-streams/video-stream-info.dart';
+import 'package:youtube_extractor/models/media_streams/audio_stream_info.dart';
+import 'package:youtube_extractor/models/media_streams/muxed_stream_info.dart';
+import 'package:youtube_extractor/models/media_streams/video_stream_info.dart';
 
 /// Set of all available media stream infos.
 class MediaStreamInfoSet {

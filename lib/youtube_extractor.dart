@@ -1,10 +1,10 @@
 import 'package:http/http.dart' as http;
-import 'package:youtube_extractor/models/media-streams/audio-stream-info.dart';
-import 'package:youtube_extractor/models/media-streams/media-stream-info-set.dart';
-import 'package:youtube_extractor/models/media-streams/muxed-stream-info.dart';
-import 'package:youtube_extractor/models/media-streams/video-stream-info.dart';
+import 'package:youtube_extractor/internal/player_context.dart';
+import 'package:youtube_extractor/models/media_streams/audio_stream_info.dart';
+import 'package:youtube_extractor/models/media_streams/media_stream_info_set.dart';
+import 'package:youtube_extractor/models/media_streams/muxed_stream_info.dart';
+import 'package:youtube_extractor/models/media_streams/video_stream_info.dart';
 import 'dart:convert';
-import 'package:youtube_extractor/models/player-context.dart';
 
 /// Dart port of YouTubeExplode
 class YouTubeExtractor {

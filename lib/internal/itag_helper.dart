@@ -1,8 +1,8 @@
-import 'package:youtube_extractor/internal/itag-descriptor.dart';
-import 'package:youtube_extractor/models/media-streams/audio-encoding.dart';
-import 'package:youtube_extractor/models/media-streams/container.dart';
-import 'package:youtube_extractor/models/media-streams/video-encoding.dart';
-import 'package:youtube_extractor/models/media-streams/video-quality.dart';
+import 'package:youtube_extractor/internal/itag_descriptor.dart';
+import 'package:youtube_extractor/models/media_streams/container.dart';
+import 'package:youtube_extractor/models/media_streams/audio_encoding.dart';
+import 'package:youtube_extractor/models/media_streams/video_encoding.dart';
+import 'package:youtube_extractor/models/media_streams/video_quality.dart';
 
 class ItagHelper {
   static Map<int, ItagDescriptor> _ItagMap = {

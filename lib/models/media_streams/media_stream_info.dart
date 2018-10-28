@@ -1,5 +1,5 @@
-import 'package:youtube_extractor/internal/itag-helper.dart';
-import 'package:youtube_extractor/models/media-streams/container.dart';
+import 'package:youtube_extractor/internal/itag_helper.dart';
+import 'package:youtube_extractor/models/media_streams/container.dart';
 
 /// Metadata associated with a certain [MediaStream].
 abstract class MediaStreamInfo {

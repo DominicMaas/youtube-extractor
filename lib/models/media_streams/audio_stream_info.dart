@@ -1,6 +1,6 @@
-import 'package:youtube_extractor/internal/itag-helper.dart';
-import 'package:youtube_extractor/models/media-streams/audio-encoding.dart';
-import 'package:youtube_extractor/models/media-streams/media-stream-info.dart';
+import 'package:youtube_extractor/internal/itag_helper.dart';
+import 'package:youtube_extractor/models/media_streams/audio_encoding.dart';
+import 'package:youtube_extractor/models/media_streams/media_stream_info.dart';
 
 /// Metadata associated with a certain [MediaStream] that contains only audio.
 class AudioStreamInfo extends MediaStreamInfo {
