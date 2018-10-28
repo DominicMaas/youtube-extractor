@@ -3,9 +3,9 @@ class MuxedStreamInfoParser {
 
   MuxedStreamInfoParser(this._root);
 
-  int ParseItag() => _root['itag'] as int;
+  int parseItag() => int.parse(_root['itag']);
 
-  String ParseUrl() => _root['url'];
+  String parseUrl() => _root['url'];
 
-  String ParseSignature() => _root['s'];
+  String parseSignature() => _root['s'];
 }

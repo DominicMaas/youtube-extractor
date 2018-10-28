@@ -1,3 +1,4 @@
+import 'package:youtube_extractor/internal/parsers/adaptive_stream_info_parser.dart';
 import 'package:youtube_extractor/internal/parsers/muxed_stream_info_parser.dart';
 
 class VideoInfoParser {
@@ -6,6 +7,8 @@ class VideoInfoParser {
   VideoInfoParser(this._root);
 
   String parsePreviewVideoId() => _root['ypc_vid'];
+
+  String parseDashManifestUrl() => _root["dashmpd"];
 
   String parseHlsPlaylistUrl() => _root["hlsvp"];
 
@@ -23,6 +26,25 @@ class VideoInfoParser {
     var streams = streamInfosEncoded.split(',');
     streams.forEach((stream) {
       builtList.add(MuxedStreamInfoParser(Uri.splitQueryString(stream)));
+    });
+
+    return builtList;
+  }
+
+  List<AdaptiveStreamInfoParser> getAdaptiveStreamInfos() {
+    var streamInfosEncoded = _root['url_encoded_fmt_stream_map'];
+
+    if (streamInfosEncoded == null) {
+      return List<AdaptiveStreamInfoParser>();
+    }
+
+    // List that we will full
+    var builtList = List<AdaptiveStreamInfoParser>();
+
+    // Extract the streams and return a list
+    var streams = streamInfosEncoded.split(',');
+    streams.forEach((stream) {
+      builtList.add(AdaptiveStreamInfoParser(Uri.splitQueryString(stream)));
     });
 
     return builtList;

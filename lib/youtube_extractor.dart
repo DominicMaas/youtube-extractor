@@ -2,11 +2,14 @@ import 'package:http/http.dart' as http;
 import 'package:youtube_extractor/exceptions/parse_exception.dart';
 import 'package:youtube_extractor/exceptions/video_requires_purchase_exception.dart';
 import 'package:youtube_extractor/exceptions/video_unavailable_exception.dart';
+import 'package:youtube_extractor/internal/itag_helper.dart';
 import 'package:youtube_extractor/internal/parsers/video_info_parser.dart';
 import 'package:youtube_extractor/internal/player_context.dart';
+import 'package:youtube_extractor/models/media_streams/audio_encoding.dart';
 import 'package:youtube_extractor/models/media_streams/audio_stream_info.dart';
 import 'package:youtube_extractor/models/media_streams/media_stream_info_set.dart';
 import 'package:youtube_extractor/models/media_streams/muxed_stream_info.dart';
+import 'package:youtube_extractor/models/media_streams/video_resolution.dart';
 import 'package:youtube_extractor/models/media_streams/video_stream_info.dart';
 import 'dart:convert';
 
@@ -102,18 +105,76 @@ class YouTubeExtractor {
 
     // Parse muxed stream infos   
     parser.getMuxedStreamInfos().forEach((muxedStreamInfoParser) {
+      // Extract itag
+      var itag = muxedStreamInfoParser.parseItag();
 
+      // Skip unknown itags
+      if (ItagHelper.isKnown(itag)) {
+        // Extract URL
+        var url = muxedStreamInfoParser.parseUrl();
+
+        // Decipher signature if needed
+        var signature = muxedStreamInfoParser.parseSignature();
+        if (signature != null) {
+          // TODO
+        }
+
+        // Probe stream and get content length
+        int contentLength = 10; //TODO
+
+        // If probe failed or content length is 0, it means the stream is gone or faulty
+        if (contentLength > 0) {
+          var streamInfo = MuxedStreamInfo(itag, url, contentLength);
+          muxedStreamInfoMap[itag] = streamInfo;
+        }
+      }
     });
 
     // Parse adaptive stream infos
-    parser.getMuxedStreamInfos().forEach((muxedStreamInfoParser) {
+    parser.getAdaptiveStreamInfos().forEach((adaptiveStreamInfoParser) {
+      // Extract itag
+      var itag = adaptiveStreamInfoParser.parseItag();
 
+      // Skip unknown itags
+      if (ItagHelper.isKnown(itag)) {
+        // Extract content length
+        var contentLength = adaptiveStreamInfoParser.parseContentLength();
+
+        // If content length is 0, it means that the stream is gone or faulty
+        if (contentLength > 0) {
+          // Extract URL
+          var url = adaptiveStreamInfoParser.parseUrl();
+
+          // Decipher signature if needed
+          var signature = adaptiveStreamInfoParser.parseSignature();
+          if (signature != null) {
+            // TODO
+          }
+
+          // Extract bitrate
+          var bitrate = adaptiveStreamInfoParser.parseBitrate();
+
+          // If audio-only
+          if (adaptiveStreamInfoParser.parseIsAudioOnly()) {
+            var streamInfo = AudioStreamInfo(itag, url, contentLength, AudioEncoding.values[bitrate]);
+            audioStreamInfoMap[itag] = streamInfo;       
+          } else { // If video-only
+            // Extract info
+            var width = adaptiveStreamInfoParser.parseWidth();
+            var height = adaptiveStreamInfoParser.parseHeight();
+            var framerate = adaptiveStreamInfoParser.parseFramerate();
+            var qualityLabel = adaptiveStreamInfoParser.parseQualityLabel();
+
+            var resolution = VideoResolution(width, height);
+            var streamInfo = VideoStreamInfo(itag, url, contentLength, bitrate, resolution, framerate, qualityLabel);
+            videoStreamInfoMap[itag] = streamInfo;
+          }
+        }
+      }
     });
 
     // Parse dash manifest
-    parser.getMuxedStreamInfos().forEach((muxedStreamInfoParser) {
-
-    });
+    var dashManifestUrl = parser.parseDashManifestUrl();
 
     // Get the raw HLS stream playlist (*.m3u8)
     var hlsPlaylistUrl = parser.parseHlsPlaylistUrl();

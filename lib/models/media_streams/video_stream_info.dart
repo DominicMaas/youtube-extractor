@@ -6,7 +6,7 @@ import 'package:youtube_extractor/models/media_streams/video_resolution.dart';
 /// Metadata associated with a certain [MediaStream] that contains only video.
 class VideoStreamInfo extends MediaStreamInfo {
   /// Video bitrate (bits/s) of the associated stream.
-  BigInt bitrate;
+  int bitrate;
 
   /// Video encoding of the associated stream.
   VideoEncoding videoEncoding;
@@ -23,5 +23,5 @@ class VideoStreamInfo extends MediaStreamInfo {
   /// Video quality label of the associated stream.
   String videoQualityLabel;
 
-  VideoStreamInfo(int iTag, String url, BigInt size, this.bitrate, this.resolution, this.framerate, this.videoQualityLabel) : super(iTag, url, size);
+  VideoStreamInfo(int iTag, String url, int size, this.bitrate, this.resolution, this.framerate, this.videoQualityLabel) : super(iTag, url, size);
 }

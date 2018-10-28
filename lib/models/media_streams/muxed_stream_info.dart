@@ -17,10 +17,10 @@ class MuxedStreamInfo extends MediaStreamInfo {
   /// Video quality label of the associated stream.
   String videoQualityLabel;
 
-  MuxedStreamInfo(int iTag, String url, BigInt size) : super(iTag, url, size) {
-    audioEncoding = ItagHelper.GetAudioEncoding(iTag);
-    videoEncoding = ItagHelper.GetVideoEncoding(iTag);
-    videoQuality = ItagHelper.GetVideoQuality(iTag);
+  MuxedStreamInfo(int iTag, String url, int size) : super(iTag, url, size) {
+    audioEncoding = ItagHelper.getAudioEncoding(iTag);
+    videoEncoding = ItagHelper.getVideoEncoding(iTag);
+    videoQuality = ItagHelper.getVideoQuality(iTag);
     videoQualityLabel = videoQuality.toString() + 'p';
   }
 }

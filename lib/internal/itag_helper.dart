@@ -113,7 +113,7 @@ class ItagHelper {
     251: ItagDescriptor(Container.WebM, AudioEncoding.Opus, null, null)
   };
 
-  static Container GetContainer(int itag) {
+  static Container getContainer(int itag) {
     var result = _ItagMap[itag]?.container;
 
     if (result == null) {
@@ -123,7 +123,7 @@ class ItagHelper {
     return result;
   }
 
-  static AudioEncoding GetAudioEncoding(int itag) {
+  static AudioEncoding getAudioEncoding(int itag) {
     var result = _ItagMap[itag]?.audioEncoding;
 
     if (result == null) {
@@ -133,7 +133,7 @@ class ItagHelper {
     return result;
   }
 
-  static VideoEncoding GetVideoEncoding(int itag) {
+  static VideoEncoding getVideoEncoding(int itag) {
     var result = _ItagMap[itag]?.videoEncoding;
 
     if (result == null) {
@@ -143,7 +143,7 @@ class ItagHelper {
     return result;
   }
 
-  static VideoQuality GetVideoQuality(int itag) {
+  static VideoQuality getVideoQuality(int itag) {
     var result = _ItagMap[itag]?.videoQuality;
 
     if (result == null) {
@@ -153,7 +153,7 @@ class ItagHelper {
     return result;
   }
 
-  static bool IsKnown(int itag) {
+  static bool isKnown(int itag) {
     return _ItagMap.containsKey(itag);
   }
 }

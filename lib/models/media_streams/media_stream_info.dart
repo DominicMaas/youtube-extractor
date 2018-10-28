@@ -13,10 +13,10 @@ abstract class MediaStreamInfo {
   Container container;
 
   /// Content length (bytes) of the associated stream.
-  BigInt size;
+  int size;
 
   MediaStreamInfo(this.iTag, this.url, this.size) {
-    container = ItagHelper.GetContainer(this.iTag);
+    container = ItagHelper.getContainer(this.iTag);
   }
 
   @override
