@@ -1,3 +1,4 @@
+import 'package:youtube_extractor/internal/itag-helper.dart';
 import 'package:youtube_extractor/models/media-streams/container.dart';
 
 /// Metadata associated with a certain [MediaStream].
@@ -15,7 +16,7 @@ abstract class MediaStreamInfo {
   BigInt size;
 
   MediaStreamInfo(this.iTag, this.url, this.size) {
-    container = ITagHelper.GetContainer(this.iTag);
+    container = ItagHelper.GetContainer(this.iTag);
   }
 
   @override

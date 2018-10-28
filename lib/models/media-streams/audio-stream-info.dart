@@ -1,3 +1,4 @@
+import 'package:youtube_extractor/internal/itag-helper.dart';
 import 'package:youtube_extractor/models/media-streams/audio-encoding.dart';
 import 'package:youtube_extractor/models/media-streams/media-stream-info.dart';
 
