@@ -3,9 +3,10 @@ import 'package:youtube_extractor/exceptions/parse_exception.dart';
 import 'package:youtube_extractor/exceptions/video_requires_purchase_exception.dart';
 import 'package:youtube_extractor/exceptions/video_unavailable_exception.dart';
 import 'package:youtube_extractor/internal/itag_helper.dart';
+import 'package:youtube_extractor/internal/parsers/player_source_parser.dart';
 import 'package:youtube_extractor/internal/parsers/video_info_parser.dart';
 import 'package:youtube_extractor/internal/player_context.dart';
-import 'package:youtube_extractor/models/media_streams/audio_encoding.dart';
+import 'package:youtube_extractor/internal/player_source.dart';
 import 'package:youtube_extractor/models/media_streams/audio_stream_info.dart';
 import 'package:youtube_extractor/models/media_streams/media_stream_info_set.dart';
 import 'package:youtube_extractor/models/media_streams/muxed_stream_info.dart';
@@ -15,7 +16,8 @@ import 'dart:convert';
 
 /// Dart port of YouTubeExplode
 class YouTubeExtractor {
-  
+  Map<String, PlayerSource> _playerSourceCache = Map<String, PlayerSource>();
+
   Future<PlayerContext> _getVideoPlayerContextAsync(String videoId) async {
     // Build the required url and get the response
     var url = 'https://www.youtube.com/embed/$videoId?disable_polymer=true&hl=en';
@@ -78,6 +80,27 @@ class YouTubeExtractor {
     return parser;
   }
 
+  Future<PlayerSourceParser> _getPlayerSourceParserAsync(String sourceUrl) async {    
+    var raw = (await http.get(sourceUrl)).body;
+    return PlayerSourceParser.initialize(raw);
+  }
+
+  Future<PlayerSource> _getVideoPlayerSourceAsync(String sourceUrl) async {
+    // Try to resolve from cache first
+    var playerSource = _playerSourceCache[sourceUrl];
+    if (playerSource != null) {
+      return playerSource;
+    } 
+    
+    // Get parser
+    var parser = await _getPlayerSourceParserAsync(sourceUrl);
+            
+    // Extract cipher operations
+    var operations = parser.parseCipherOperations();
+
+    return _playerSourceCache[sourceUrl] = PlayerSource(operations);
+  }
+
   /// Gets a set of all available media stream infos for given video.
   Future<MediaStreamInfoSet> getVideoMediaStreamInfosAsync(String videoId) async {
     
@@ -104,7 +127,7 @@ class YouTubeExtractor {
     var videoStreamInfoMap = new Map<int, VideoStreamInfo>();
 
     // Parse muxed stream infos   
-    parser.getMuxedStreamInfos().forEach((muxedStreamInfoParser) {
+    parser.getMuxedStreamInfos().forEach((muxedStreamInfoParser) async {
       // Extract itag
       var itag = muxedStreamInfoParser.parseItag();
 
@@ -116,7 +139,9 @@ class YouTubeExtractor {
         // Decipher signature if needed
         var signature = muxedStreamInfoParser.parseSignature();
         if (signature != null) {
-          // TODO
+          var playerSource = await _getVideoPlayerSourceAsync(playerContext.sourceUrl);
+          signature = playerSource.decipher(signature);
+          url = url + '&signature=' + signature;
         }
 
         // Probe stream and get content length
@@ -131,7 +156,7 @@ class YouTubeExtractor {
     });
 
     // Parse adaptive stream infos
-    parser.getAdaptiveStreamInfos().forEach((adaptiveStreamInfoParser) {
+    parser.getAdaptiveStreamInfos().forEach((adaptiveStreamInfoParser) async {
       // Extract itag
       var itag = adaptiveStreamInfoParser.parseItag();
 
@@ -148,7 +173,9 @@ class YouTubeExtractor {
           // Decipher signature if needed
           var signature = adaptiveStreamInfoParser.parseSignature();
           if (signature != null) {
-            // TODO
+            var playerSource = await _getVideoPlayerSourceAsync(playerContext.sourceUrl);
+            signature = playerSource.decipher(signature);
+            url = url + '&signature=' + signature;
           }
 
           // Extract bitrate
