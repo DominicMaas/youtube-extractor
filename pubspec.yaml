@@ -1,0 +1,8 @@
+name: youtube_extractor
+version: 1.0.0
+author: SoundByte (Dominic Maas) <soundbyteuwp@gmail.com>
+homepage: https://docs.soundbytemedia.com/open-source
+environment:
+  sdk: '>=2.0.0 <3.0.0'
+dependencies:
+  http: any
