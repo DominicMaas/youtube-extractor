@@ -163,10 +163,9 @@ class YouTubeExtractor {
             var width = adaptiveStreamInfoParser.parseWidth();
             var height = adaptiveStreamInfoParser.parseHeight();
             var framerate = adaptiveStreamInfoParser.parseFramerate();
-            var qualityLabel = adaptiveStreamInfoParser.parseQualityLabel();
 
             var resolution = VideoResolution(width, height);
-            var streamInfo = VideoStreamInfo(itag, url, contentLength, bitrate, resolution, framerate, qualityLabel);
+            var streamInfo = VideoStreamInfo(itag, url, contentLength, bitrate, resolution, framerate);
             videoStreamInfoMap[itag] = streamInfo;
           }
         }

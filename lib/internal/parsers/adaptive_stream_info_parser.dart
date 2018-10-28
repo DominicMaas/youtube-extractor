@@ -21,8 +21,6 @@ class AdaptiveStreamInfoParser {
 
   int parseFramerate() => _getInt(_root['fps']);
 
-  String parseQualityLabel() => _root['quality_label'];
-
   int _getInt(String string) {
     if (string == null) {
       return null;

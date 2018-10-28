@@ -1,3 +1,4 @@
+import 'package:youtube_extractor/internal/itag_helper.dart';
 import 'package:youtube_extractor/models/media_streams/media_stream_info.dart';
 import 'package:youtube_extractor/models/media_streams/video_encoding.dart';
 import 'package:youtube_extractor/models/media_streams/video_quality.dart';
@@ -20,8 +21,8 @@ class VideoStreamInfo extends MediaStreamInfo {
   /// Video framerate (FPS) of the associated stream.
   int framerate;
 
-  /// Video quality label of the associated stream.
-  String videoQualityLabel;
-
-  VideoStreamInfo(int iTag, String url, int size, this.bitrate, this.resolution, this.framerate, this.videoQualityLabel) : super(iTag, url, size);
+  VideoStreamInfo(int iTag, String url, int size, this.bitrate, this.resolution, this.framerate) : super(iTag, url, size) {
+    videoEncoding = ItagHelper.getVideoEncoding(iTag);
+    videoQuality = ItagHelper.getVideoQuality(iTag);
+  }
 }
