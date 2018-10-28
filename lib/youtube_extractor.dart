@@ -1,4 +1,8 @@
 import 'package:http/http.dart' as http;
+import 'package:youtube_extractor/exceptions/parse_exception.dart';
+import 'package:youtube_extractor/exceptions/video_requires_purchase_exception.dart';
+import 'package:youtube_extractor/exceptions/video_unavailable_exception.dart';
+import 'package:youtube_extractor/internal/parsers/video_info_parser.dart';
 import 'package:youtube_extractor/internal/player_context.dart';
 import 'package:youtube_extractor/models/media_streams/audio_stream_info.dart';
 import 'package:youtube_extractor/models/media_streams/media_stream_info_set.dart';
@@ -34,12 +38,12 @@ class YouTubeExtractor {
 
     // Check if successful
     if (playerSourceUrl == null || playerSourceUrl.isEmpty || sts == null || sts.isEmpty)
-      throw Exception("Could not parse player context.");
+      throw ParseException("Could not parse player context.");
 
     return PlayerContext(playerSourceUrl, sts);
   }
   
-  Future<Map<String, String>> _getVideoInfoAsync(String videoId, String el, String sts) async {
+  Future<VideoInfoParser> _getVideoInfoParserAsync(String videoId, String el, String sts) async {
 
     // This parameter does magic and a lot of videos don't work without it
     var eurl = Uri.encodeFull('https://youtube.googleapis.com/v/$videoId');
@@ -48,10 +52,27 @@ class YouTubeExtractor {
     var url = "https://www.youtube.com/get_video_info?video_id=$videoId&el=$el&sts=$sts&eurl=$eurl&hl=en";  
     var body = (await http.get(url)).body;
 
-    // TODO: Error Checking
+    var parser = VideoInfoParser.initialize(body);
 
+    var root = Uri.splitQueryString(body);;
+
+    // Check if video exists by verifying that video ID property is not empty
+    if (root['video_id'] == null || root['video_id'].isEmpty) {
+      // Get native error code and error reason
+      var errorCode = root['errorcode'] as int;
+      var errorReason = root['reason'];
+
+      throw new VideoUnavailableException(videoId, errorCode, errorReason);
+    }
+    
+    // If requested with "sts" parameter, it means that the calling code is interested in getting video info with streams.
+    // For that we also need to make sure the video is fully available by checking for errors.
+    if (sts != null && sts.isNotEmpty && root['errorcode'] != null && root['errorcode'] as int != 0) {
+
+    }
+   
     // Return the split string
-    return Uri.splitQueryString(body);
+    return parser;
   }
 
   /// Gets a set of all available media stream infos for given video.
@@ -66,22 +87,43 @@ class YouTubeExtractor {
     var playerContext = await _getVideoPlayerContextAsync(videoId);
 
     // Get parser
-    var videoInfo = await _getVideoInfoAsync(videoId, "embedded", playerContext.sts);
+    var parser = await _getVideoInfoParserAsync(videoId, "embedded", playerContext.sts);
 
-    // TODO: Check if requires purchase
-
+    // Check if video requires purchase
+    var previewVideoId = parser.parsePreviewVideoId();
+    if (previewVideoId != null) {
+      throw new VideoRequiresPurchaseException(videoId, previewVideoId);
+    }
+    
     // Prepare stream info maps
     var muxedStreamInfoMap = new Map<int, MuxedStreamInfo>();
     var audioStreamInfoMap = new Map<int, AudioStreamInfo>();
     var videoStreamInfoMap = new Map<int, VideoStreamInfo>();
 
-    // Parse muxed stream infos    
-    var streamInfosEncoded = videoInfo['url_encoded_fmt_stream_map'];
+    // Parse muxed stream infos   
+    parser.getMuxedStreamInfos().forEach((muxedStreamInfoParser) {
 
+    });
 
+    // Parse adaptive stream infos
+    parser.getMuxedStreamInfos().forEach((muxedStreamInfoParser) {
 
-    print(playerContext.sts);
-    print(playerContext.sourceUrl);
+    });
+
+    // Parse dash manifest
+    parser.getMuxedStreamInfos().forEach((muxedStreamInfoParser) {
+
+    });
+
+    // Get the raw HLS stream playlist (*.m3u8)
+    var hlsPlaylistUrl = parser.parseHlsPlaylistUrl();
+  
+    // Finalize stream info collections
+    var muxedStreamInfos = muxedStreamInfoMap.values.toList(); 
+    var audioStreamInfos = audioStreamInfoMap.values.toList();
+    var videoStreamInfos = videoStreamInfoMap.values.toList();
+
+    return MediaStreamInfoSet(muxedStreamInfos, audioStreamInfos, videoStreamInfos, hlsPlaylistUrl);
   }
 
   /// Verifies that the given string is syntactically a valid YouTube video ID.
