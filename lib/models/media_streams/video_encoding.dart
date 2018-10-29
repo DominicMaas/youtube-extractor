@@ -1,5 +1,5 @@
- /// Video encoding.
- enum VideoEncoding {
+/// Video encoding.
+enum VideoEncoding {
   /// MPEG-4 Visual.
   Mp4V,
 

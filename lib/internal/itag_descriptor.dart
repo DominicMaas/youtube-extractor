@@ -9,5 +9,6 @@ class ItagDescriptor {
   VideoEncoding videoEncoding;
   VideoQuality videoQuality;
 
-  ItagDescriptor(this.container, this.audioEncoding, this.videoEncoding, this.videoQuality);
+  ItagDescriptor(this.container, this.audioEncoding, this.videoEncoding,
+      this.videoQuality);
 }

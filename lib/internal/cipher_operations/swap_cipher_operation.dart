@@ -4,10 +4,9 @@ class SwapCipherOperation implements BaseCipherOperation {
   int _index;
 
   SwapCipherOperation(this._index);
-  
+
   @override
   String decipher(String input) {
-
     var splitString = input.split('');
 
     splitString[0] = input[_index];
@@ -15,5 +14,4 @@ class SwapCipherOperation implements BaseCipherOperation {
 
     return splitString.join();
   }
-
 }

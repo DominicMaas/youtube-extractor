@@ -20,18 +20,22 @@ class YouTubeExtractor {
 
   Future<PlayerContext> _getVideoPlayerContextAsync(String videoId) async {
     // Build the required url and get the response
-    var url = 'https://www.youtube.com/embed/$videoId?disable_polymer=true&hl=en';
+    var url =
+        'https://www.youtube.com/embed/$videoId?disable_polymer=true&hl=en';
     var body = (await http.get(url)).body;
-    
+
     // Extract the config part
-    var config = RegExp(r"yt\.setConfig\({'PLAYER_CONFIG':.+?\}\);", multiLine: true).firstMatch(body).group(0);
+    var config =
+        RegExp(r"yt\.setConfig\({'PLAYER_CONFIG':.+?\}\);", multiLine: true)
+            .firstMatch(body)
+            .group(0);
 
     // Trip off the start and end to get a valid JSON string
     config = config.substring(30, config.length - 3);
 
     // Decode the json
     var root = json.decode(config);
-    
+
     // Get the player source url
     var playerSourceUrl = root["assets"]["js"].toString();
     if (playerSourceUrl != null && playerSourceUrl.isNotEmpty) {
@@ -39,27 +43,31 @@ class YouTubeExtractor {
     }
 
     // Get the sts
-    var sts = root["sts"].toString();    
+    var sts = root["sts"].toString();
 
     // Check if successful
-    if (playerSourceUrl == null || playerSourceUrl.isEmpty || sts == null || sts.isEmpty)
-      throw ParseException("Could not parse player context.");
+    if (playerSourceUrl == null ||
+        playerSourceUrl.isEmpty ||
+        sts == null ||
+        sts.isEmpty) throw ParseException("Could not parse player context.");
 
     return PlayerContext(playerSourceUrl, sts);
   }
-  
-  Future<VideoInfoParser> _getVideoInfoParserAsync(String videoId, String el, String sts) async {
 
+  Future<VideoInfoParser> _getVideoInfoParserAsync(
+      String videoId, String el, String sts) async {
     // This parameter does magic and a lot of videos don't work without it
     var eurl = Uri.encodeFull('https://youtube.googleapis.com/v/$videoId');
-    
+
     // Build the url and perform a request
-    var url = "https://www.youtube.com/get_video_info?video_id=$videoId&el=$el&sts=$sts&eurl=$eurl&hl=en";  
+    var url =
+        "https://www.youtube.com/get_video_info?video_id=$videoId&el=$el&sts=$sts&eurl=$eurl&hl=en";
     var body = (await http.get(url)).body;
 
     var parser = VideoInfoParser.initialize(body);
 
-    var root = Uri.splitQueryString(body);;
+    var root = Uri.splitQueryString(body);
+    ;
 
     // Check if video exists by verifying that video ID property is not empty
     if (root['video_id'] == null || root['video_id'].isEmpty) {
@@ -69,13 +77,16 @@ class YouTubeExtractor {
 
       throw new VideoUnavailableException(videoId, errorCode, errorReason);
     }
-    
+
     // If requested with "sts" parameter, it means that the calling code is interested in getting video info with streams.
     // For that we also need to make sure the video is fully available by checking for errors.
-    if (sts != null && sts.isNotEmpty && root['errorcode'] != null && int.tryParse(root['errorcode']) != 0) {
+    if (sts != null &&
+        sts.isNotEmpty &&
+        root['errorcode'] != null &&
+        int.tryParse(root['errorcode']) != 0) {
       parser = await _getVideoInfoParserAsync(videoId, "detailpage", sts);
     }
-   
+
     // Return the split string
     return parser;
   }
@@ -85,12 +96,12 @@ class YouTubeExtractor {
     var playerSource = _playerSourceCache[sourceUrl];
     if (playerSource != null) {
       return playerSource;
-    } 
-    
+    }
+
     // Get parser
     var raw = (await http.get(sourceUrl)).body;
     var parser = PlayerSourceParser.initialize(raw);
-            
+
     // Extract cipher operations
     var operations = parser.parseCipherOperations();
 
@@ -98,8 +109,8 @@ class YouTubeExtractor {
   }
 
   /// Gets a set of all available media stream infos for given video.
-  Future<MediaStreamInfoSet> getVideoMediaStreamInfosAsync(String videoId) async {
-    
+  Future<MediaStreamInfoSet> getVideoMediaStreamInfosAsync(
+      String videoId) async {
     // Make sure the ID is valid
     if (!validateVideoId(videoId)) {
       throw ArgumentError('Invalid YouTube video ID [$videoId].');
@@ -109,21 +120,22 @@ class YouTubeExtractor {
     var playerContext = await _getVideoPlayerContextAsync(videoId);
 
     // Get parser
-    var parser = await _getVideoInfoParserAsync(videoId, "embedded", playerContext.sts);
+    var parser =
+        await _getVideoInfoParserAsync(videoId, "embedded", playerContext.sts);
 
     // Check if video requires purchase
     var previewVideoId = parser.parsePreviewVideoId();
     if (previewVideoId != null) {
       throw new VideoRequiresPurchaseException(videoId, previewVideoId);
     }
-    
+
     // Prepare stream info maps
     var muxedStreamInfoMap = new Map<int, MuxedStreamInfo>();
     var audioStreamInfoMap = new Map<int, AudioStreamInfo>();
     var videoStreamInfoMap = new Map<int, VideoStreamInfo>();
 
-    // Parse muxed stream infos  
-    var muxedStreamInfo = parser.getMuxedStreamInfos(); 
+    // Parse muxed stream infos
+    var muxedStreamInfo = parser.getMuxedStreamInfos();
     for (var i = 0; i < muxedStreamInfo.length; i++) {
       // Extract itag
       var itag = muxedStreamInfo[i].parseItag();
@@ -136,7 +148,8 @@ class YouTubeExtractor {
         // Decipher signature if needed
         var signature = muxedStreamInfo[i].parseSignature();
         if (signature != null) {
-          var playerSource = await _getVideoPlayerSourceAsync(playerContext.sourceUrl);
+          var playerSource =
+              await _getVideoPlayerSourceAsync(playerContext.sourceUrl);
           signature = playerSource.decipher(signature);
           url = url + '&signature=' + signature;
         }
@@ -153,7 +166,7 @@ class YouTubeExtractor {
     }
 
     // Parse adaptive stream infos
-    var adaptiveStreamInfo = parser.getAdaptiveStreamInfos(); 
+    var adaptiveStreamInfo = parser.getAdaptiveStreamInfos();
     for (var i = 0; i < adaptiveStreamInfo.length; i++) {
       // Extract itag
       var itag = adaptiveStreamInfo[i].parseItag();
@@ -171,7 +184,8 @@ class YouTubeExtractor {
           // Decipher signature if needed
           var signature = adaptiveStreamInfo[i].parseSignature();
           if (signature != null) {
-            var playerSource = await _getVideoPlayerSourceAsync(playerContext.sourceUrl);
+            var playerSource =
+                await _getVideoPlayerSourceAsync(playerContext.sourceUrl);
             signature = playerSource.decipher(signature);
             url = url + '&signature=' + signature;
           }
@@ -182,43 +196,48 @@ class YouTubeExtractor {
           // If audio-only
           if (adaptiveStreamInfo[i].parseIsAudioOnly()) {
             var streamInfo = AudioStreamInfo(itag, url, contentLength, bitrate);
-            audioStreamInfoMap[itag] = streamInfo;       
-          } else { // If video-only
+            audioStreamInfoMap[itag] = streamInfo;
+          } else {
+            // If video-only
             // Extract info
             var width = adaptiveStreamInfo[i].parseWidth();
             var height = adaptiveStreamInfo[i].parseHeight();
             var framerate = adaptiveStreamInfo[i].parseFramerate();
 
             var resolution = VideoResolution(width, height);
-            var streamInfo = VideoStreamInfo(itag, url, contentLength, bitrate, resolution, framerate);
+            var streamInfo = VideoStreamInfo(
+                itag, url, contentLength, bitrate, resolution, framerate);
             videoStreamInfoMap[itag] = streamInfo;
           }
         }
       }
-    };
+    }
+    ;
 
     // Parse dash manifest
     var dashManifestUrl = parser.parseDashManifestUrl();
     if (dashManifestUrl != null) {
       // Parse signature
-      var signature = RegExp(r"/s/(.*?)(?:/|$)", multiLine: true).firstMatch(dashManifestUrl).group(1);
+      var signature = RegExp(r"/s/(.*?)(?:/|$)", multiLine: true)
+          .firstMatch(dashManifestUrl)
+          .group(1);
       print(signature);
     }
 
     // Get the raw HLS stream playlist (*.m3u8)
     var hlsPlaylistUrl = parser.parseHlsPlaylistUrl();
-  
+
     // Finalize stream info collections
-    var muxedStreamInfos = muxedStreamInfoMap.values.toList(); 
+    var muxedStreamInfos = muxedStreamInfoMap.values.toList();
     var audioStreamInfos = audioStreamInfoMap.values.toList();
     var videoStreamInfos = videoStreamInfoMap.values.toList();
 
-    return MediaStreamInfoSet(muxedStreamInfos, audioStreamInfos, videoStreamInfos, hlsPlaylistUrl);
+    return MediaStreamInfoSet(
+        muxedStreamInfos, audioStreamInfos, videoStreamInfos, hlsPlaylistUrl);
   }
 
   /// Verifies that the given string is syntactically a valid YouTube video ID.
   bool validateVideoId(String videoId) {
-    
     // The user has not passed in a video ID at all
     if (videoId == null || videoId.isEmpty) {
       return false;

@@ -8,9 +8,10 @@ class AudioStreamInfo extends MediaStreamInfo {
   int bitrate;
 
   /// Audio encoding of the associated stream.
-  AudioEncoding audioEncoding; 
+  AudioEncoding audioEncoding;
 
-  AudioStreamInfo(int iTag, String url, int size, this.bitrate) : super(iTag, url, size) {
+  AudioStreamInfo(int iTag, String url, int size, this.bitrate)
+      : super(iTag, url, size) {
     audioEncoding = ItagHelper.getAudioEncoding(iTag);
   }
 }

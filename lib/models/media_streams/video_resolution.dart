@@ -1,5 +1,5 @@
 /// Width and height of a video.
-class VideoResolution  {
+class VideoResolution {
   /// Viewport width.
   int wdith;
 

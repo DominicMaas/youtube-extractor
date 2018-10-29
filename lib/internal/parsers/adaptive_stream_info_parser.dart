@@ -15,9 +15,9 @@ class AdaptiveStreamInfoParser {
 
   bool parseIsAudioOnly() => _root['type']?.startsWith('audio/');
 
-  int parseWidth() => 0;//_root["size"].SubstringUntil('x').ParseInt();
+  int parseWidth() => 0; //_root["size"].SubstringUntil('x').ParseInt();
 
-  int parseHeight() => 0;//_root["size"].SubstringAfter('x').ParseInt();
+  int parseHeight() => 0; //_root["size"].SubstringAfter('x').ParseInt();
 
   int parseFramerate() => _getInt(_root['fps']);
 

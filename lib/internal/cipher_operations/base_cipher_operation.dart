@@ -1,3 +1,3 @@
-abstract class BaseCipherOperation{
+abstract class BaseCipherOperation {
   String decipher(String input);
 }

@@ -21,7 +21,9 @@ class VideoStreamInfo extends MediaStreamInfo {
   /// Video framerate (FPS) of the associated stream.
   int framerate;
 
-  VideoStreamInfo(int iTag, String url, int size, this.bitrate, this.resolution, this.framerate) : super(iTag, url, size) {
+  VideoStreamInfo(int iTag, String url, int size, this.bitrate, this.resolution,
+      this.framerate)
+      : super(iTag, url, size) {
     videoEncoding = ItagHelper.getVideoEncoding(iTag);
     videoQuality = ItagHelper.getVideoQuality(iTag);
   }

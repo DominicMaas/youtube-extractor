@@ -17,16 +17,21 @@ class PlayerSourceParser {
     // Sourced from https://github.com/Tyrrrz/YoutubeExplode/blob/6227f90d974e75b342c803f076f9d2688d0f403c/YoutubeExplode/Internal/Parsers/PlayerSourceParser.cs
 
     // Find the name of the function that handles deciphering
-    var entryPoint = RegExp(r"(\w+)&&(\w+)\.set\(\w+,(\w+)\(\1\)\);return\s+\2").firstMatch(_raw).group(3);
+    var entryPoint = RegExp(r"(\w+)&&(\w+)\.set\(\w+,(\w+)\(\1\)\);return\s+\2")
+        .firstMatch(_raw)
+        .group(3);
     if (entryPoint == null) {
-      throw ParseException('Could not find the entry function for signature deciphering.');
+      throw ParseException(
+          'Could not find the entry function for signature deciphering.');
     }
 
     // Find the body of the function
-    var entryPointPattern = r"(?!h\.)" + RegExp.escape(entryPoint) + r"=function\(\w+\)\{(.*?)\}";
+    var entryPointPattern =
+        r"(?!h\.)" + RegExp.escape(entryPoint) + r"=function\(\w+\)\{(.*?)\}";
     var entryPointBody = RegExp(entryPointPattern).firstMatch(_raw).group(1);
     if (entryPointBody == null) {
-      throw ParseException('Could not find the signature decipherer function body.');
+      throw ParseException(
+          'Could not find the signature decipherer function body.');
     }
     var entryPointLines = entryPointBody.split(';').toList();
 
@@ -39,22 +44,30 @@ class PlayerSourceParser {
     // Analyze the function body to determine the names of cipher functions
     for (var i = 0; i < entryPointLines.length; i++) {
       // Break when all functions are found
-      if (reverseFuncName != null && sliceFuncName != null && charSwapFuncName != null) {
+      if (reverseFuncName != null &&
+          sliceFuncName != null &&
+          charSwapFuncName != null) {
         break;
       }
 
       // Get the function called on this line
-      var calledFuncName = RegExp(r"\w+\.(\w+)\(").firstMatch(entryPointLines[i]).group(1);
+      var calledFuncName =
+          RegExp(r"\w+\.(\w+)\(").firstMatch(entryPointLines[i]).group(1);
       if (calledFuncName == null) {
         continue;
       }
-      
+
       // Find cipher function names
-      if (RegExp(RegExp.escape(calledFuncName) + r":\bfunction\b\(\w+\)").hasMatch(_raw)) {
+      if (RegExp(RegExp.escape(calledFuncName) + r":\bfunction\b\(\w+\)")
+          .hasMatch(_raw)) {
         reverseFuncName = calledFuncName;
-      } else if (RegExp(RegExp.escape(calledFuncName) + r":\bfunction\b\([a],b\).(\breturn\b)?.?\w+\.").hasMatch(_raw)) {
+      } else if (RegExp(RegExp.escape(calledFuncName) +
+              r":\bfunction\b\([a],b\).(\breturn\b)?.?\w+\.")
+          .hasMatch(_raw)) {
         sliceFuncName = calledFuncName;
-      } else if (RegExp(RegExp.escape(calledFuncName) + r":\bfunction\b\(\w+\,\w\).\bvar\b.\bc=a\b").hasMatch(_raw)) {
+      } else if (RegExp(RegExp.escape(calledFuncName) +
+              r":\bfunction\b\(\w+\,\w\).\bvar\b.\bc=a\b")
+          .hasMatch(_raw)) {
         charSwapFuncName = calledFuncName;
       }
     }
@@ -62,18 +75,24 @@ class PlayerSourceParser {
     // Analyze the function body again to determine the operation set and order
     for (var i = 0; i < entryPointLines.length; i++) {
       // Get the function called on this line
-      var calledFuncName = RegExp(r"\w+\.(\w+)\(").firstMatch(entryPointLines[i]).group(1);
+      var calledFuncName =
+          RegExp(r"\w+\.(\w+)\(").firstMatch(entryPointLines[i]).group(1);
       if (calledFuncName == null) {
         continue;
       }
-   
-      if (calledFuncName == charSwapFuncName) { // Swap operation
-        var index = int.tryParse(RegExp(r"\(\w+,(\d+)\)").firstMatch(entryPointLines[i]).group(1));
+
+      if (calledFuncName == charSwapFuncName) {
+        // Swap operation
+        var index = int.tryParse(
+            RegExp(r"\(\w+,(\d+)\)").firstMatch(entryPointLines[i]).group(1));
         operations.add(SwapCipherOperation(index));
-      } else if (calledFuncName == sliceFuncName) { // Slice operation
-        var index = int.tryParse(RegExp(r"\(\w+,(\d+)\)").firstMatch(entryPointLines[i]).group(1));
+      } else if (calledFuncName == sliceFuncName) {
+        // Slice operation
+        var index = int.tryParse(
+            RegExp(r"\(\w+,(\d+)\)").firstMatch(entryPointLines[i]).group(1));
         operations.add(SliceCipherOperation(index));
-      } else if (calledFuncName == reverseFuncName) { // Reverse operation
+      } else if (calledFuncName == reverseFuncName) {
+        // Reverse operation
         operations.add(ReverseCipherOperation());
       }
     }
