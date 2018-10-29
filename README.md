@@ -13,7 +13,7 @@ YouTube Extractor is a port of [YouTubeExplode](https://github.com/Tyrrrz/Youtub
 
 YouTube Extractor has a single entry point, the `YouTubeExtractor` class. See the `example` folder for more information.
 
-### Get a video stream
+### Get an audio stream
 
 ```dart
 main() async {
