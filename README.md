@@ -16,7 +16,11 @@ YouTube Extractor has a single entry point, the `YouTubeExtractor` class. See th
 ### Get a video stream
 
 ```dart
-var videoStreams = await YouTubeExtractor().getVideoMediaStreamInfosAsync('AtD-HOiAIc4');
-var stream = videoStreams.video.first;
-print(stream.url);
+main() async {
+  // Get the stream info for the passed video
+  var streamInfo = await YouTubeExtractor().getVideoMediaStreamInfosAsync('a1ExYqrBJio');
+  
+  // Print the audio stream url
+  print('Audio URL: ${streamInfo.audio.first.url}');
+}
 ```
