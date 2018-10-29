@@ -67,7 +67,6 @@ class YouTubeExtractor {
     var parser = VideoInfoParser.initialize(body);
 
     var root = Uri.splitQueryString(body);
-    ;
 
     // Check if video exists by verifying that video ID property is not empty
     if (root['video_id'] == null || root['video_id'].isEmpty) {
