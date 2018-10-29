@@ -13,6 +13,7 @@ import 'package:youtube_extractor/models/media_streams/muxed_stream_info.dart';
 import 'package:youtube_extractor/models/media_streams/video_resolution.dart';
 import 'package:youtube_extractor/models/media_streams/video_stream_info.dart';
 import 'dart:convert';
+import 'dart:async';
 
 /// Dart port of YouTubeExplode
 class YouTubeExtractor {
