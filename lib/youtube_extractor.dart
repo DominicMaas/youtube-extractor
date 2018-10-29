@@ -80,11 +80,6 @@ class YouTubeExtractor {
     return parser;
   }
 
-  Future<PlayerSourceParser> _getPlayerSourceParserAsync(String sourceUrl) async {    
-    var raw = (await http.get(sourceUrl)).body;
-    return PlayerSourceParser.initialize(raw);
-  }
-
   Future<PlayerSource> _getVideoPlayerSourceAsync(String sourceUrl) async {
     // Try to resolve from cache first
     var playerSource = _playerSourceCache[sourceUrl];
@@ -93,7 +88,8 @@ class YouTubeExtractor {
     } 
     
     // Get parser
-    var parser = await _getPlayerSourceParserAsync(sourceUrl);
+    var raw = (await http.get(sourceUrl)).body;
+    var parser = PlayerSourceParser.initialize(raw);
             
     // Extract cipher operations
     var operations = parser.parseCipherOperations();
@@ -126,18 +122,19 @@ class YouTubeExtractor {
     var audioStreamInfoMap = new Map<int, AudioStreamInfo>();
     var videoStreamInfoMap = new Map<int, VideoStreamInfo>();
 
-    // Parse muxed stream infos   
-    parser.getMuxedStreamInfos().forEach((muxedStreamInfoParser) async {
+    // Parse muxed stream infos  
+    var muxedStreamInfo = parser.getMuxedStreamInfos(); 
+    for (var i = 0; i < muxedStreamInfo.length; i++) {
       // Extract itag
-      var itag = muxedStreamInfoParser.parseItag();
+      var itag = muxedStreamInfo[i].parseItag();
 
       // Skip unknown itags
       if (ItagHelper.isKnown(itag)) {
         // Extract URL
-        var url = muxedStreamInfoParser.parseUrl();
+        var url = muxedStreamInfo[i].parseUrl();
 
         // Decipher signature if needed
-        var signature = muxedStreamInfoParser.parseSignature();
+        var signature = muxedStreamInfo[i].parseSignature();
         if (signature != null) {
           var playerSource = await _getVideoPlayerSourceAsync(playerContext.sourceUrl);
           signature = playerSource.decipher(signature);
@@ -153,25 +150,26 @@ class YouTubeExtractor {
           muxedStreamInfoMap[itag] = streamInfo;
         }
       }
-    });
+    }
 
     // Parse adaptive stream infos
-    parser.getAdaptiveStreamInfos().forEach((adaptiveStreamInfoParser) async {
+    var adaptiveStreamInfo = parser.getAdaptiveStreamInfos(); 
+    for (var i = 0; i < adaptiveStreamInfo.length; i++) {
       // Extract itag
-      var itag = adaptiveStreamInfoParser.parseItag();
+      var itag = adaptiveStreamInfo[i].parseItag();
 
       // Skip unknown itags
       if (ItagHelper.isKnown(itag)) {
         // Extract content length
-        var contentLength = adaptiveStreamInfoParser.parseContentLength();
+        var contentLength = adaptiveStreamInfo[i].parseContentLength();
 
         // If content length is 0, it means that the stream is gone or faulty
         if (contentLength > 0) {
           // Extract URL
-          var url = adaptiveStreamInfoParser.parseUrl();
+          var url = adaptiveStreamInfo[i].parseUrl();
 
           // Decipher signature if needed
-          var signature = adaptiveStreamInfoParser.parseSignature();
+          var signature = adaptiveStreamInfo[i].parseSignature();
           if (signature != null) {
             var playerSource = await _getVideoPlayerSourceAsync(playerContext.sourceUrl);
             signature = playerSource.decipher(signature);
@@ -179,17 +177,17 @@ class YouTubeExtractor {
           }
 
           // Extract bitrate
-          var bitrate = adaptiveStreamInfoParser.parseBitrate();
+          var bitrate = adaptiveStreamInfo[i].parseBitrate();
 
           // If audio-only
-          if (adaptiveStreamInfoParser.parseIsAudioOnly()) {
+          if (adaptiveStreamInfo[i].parseIsAudioOnly()) {
             var streamInfo = AudioStreamInfo(itag, url, contentLength, bitrate);
             audioStreamInfoMap[itag] = streamInfo;       
           } else { // If video-only
             // Extract info
-            var width = adaptiveStreamInfoParser.parseWidth();
-            var height = adaptiveStreamInfoParser.parseHeight();
-            var framerate = adaptiveStreamInfoParser.parseFramerate();
+            var width = adaptiveStreamInfo[i].parseWidth();
+            var height = adaptiveStreamInfo[i].parseHeight();
+            var framerate = adaptiveStreamInfo[i].parseFramerate();
 
             var resolution = VideoResolution(width, height);
             var streamInfo = VideoStreamInfo(itag, url, contentLength, bitrate, resolution, framerate);
@@ -197,7 +195,7 @@ class YouTubeExtractor {
           }
         }
       }
-    });
+    };
 
     // Parse dash manifest
     var dashManifestUrl = parser.parseDashManifestUrl();

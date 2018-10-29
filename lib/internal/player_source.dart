@@ -1,5 +1,7 @@
+import 'package:youtube_extractor/internal/cipher_operations/base_cipher_operation.dart';
+
 class PlayerSource {
-  List<ICipherOperation> cipherOperations;
+  List<BaseCipherOperation> cipherOperations;
 
    PlayerSource(this.cipherOperations);
 
