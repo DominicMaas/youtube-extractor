@@ -2,7 +2,7 @@ name: youtube_extractor
 version: 0.1.1
 author: SoundByte (Dominic Maas) <soundbyteuwp@gmail.com>
 description: A library for extracting YouTube audio and video streams.
-homepage: https://docs.soundbytemedia.com/open-source
+homepage: https://github.com/SoundByteOSS/youtube-extractor
 environment:
   sdk: '>=2.0.0 <3.0.0'
 dependencies:
