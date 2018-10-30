@@ -1,19 +1,23 @@
+import 'package:xml/xml.dart' as xml;
+
 class StreamInfoParser {
-  int parseItag() => null; // (int) _root.Attribute("id");
+  xml.XmlDocument _root;
 
-  String parseUrl() => null; // (string) _root.Element("BaseURL");
+  StreamInfoParser(this._root);
 
-  int parseContentLength() =>
-      null; // Regex.Match(ParseUrl(), @"clen[/=](\d+)").Groups[1].Value.ParseLong();
+  int parseItag() => int.tryParse(_root.attributes.firstWhere((x) => x.name == 'id').value);
 
-  int parseBitrate() => null; // (long) _root.Attribute("bandwidth");
+  String parseUrl() => _root.attributes.firstWhere((x) => x.name == 'BaseURL').value; 
 
-  bool parseIsAudioOnly() =>
-      null; // _root.Element("AudioChannelConfiguration") != null;
+  int parseContentLength() => int.tryParse(RegExp(r'clen[/=](\d+)').firstMatch(parseUrl()).group(1));
 
-  int parseWidth() => null; // (int) _root.Attribute("width");
+  int parseBitrate() => int.tryParse(_root.attributes.firstWhere((x) => x.name == 'bandwidth').value); 
 
-  int parseHeight() => null; // (int) _root.Attribute("height");
+  bool parseIsAudioOnly() => _root.attributes.firstWhere((x) => x.name == 'AudioChannelConfiguration') != null; 
 
-  int parseFramerate() => null; //(int) _root.Attribute("frameRate");
+  int parseWidth() => int.tryParse(_root.attributes.firstWhere((x) => x.name == 'width').value); 
+
+  int parseHeight() => int.tryParse(_root.attributes.firstWhere((x) => x.name == 'height').value); 
+
+  int parseFramerate() => int.tryParse(_root.attributes.firstWhere((x) => x.name == 'frameRate').value);
 }

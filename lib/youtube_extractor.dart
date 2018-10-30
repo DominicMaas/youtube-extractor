@@ -166,9 +166,27 @@ class YouTubeExtractor {
         if (!ItagHelper.isKnown(itag)) {
           continue;
         }
-      }
 
-      print(signature);
+        // Extract info
+        var url = dashStreamInfo[i].parseUrl();
+        var contentLength = dashStreamInfo[i].parseContentLength();
+        var bitrate = dashStreamInfo[i].parseBitrate();
+
+        // If audio-only
+        if (dashStreamInfo[i].parseIsAudioOnly()) {
+          var streamInfo = AudioStreamInfo(itag, url, contentLength, bitrate);
+          audioStreamInfoMap[itag] = streamInfo;
+        } else {
+          // Parse additional data
+          var width = dashStreamInfo[i].parseWidth();
+          var height = dashStreamInfo[i].parseHeight();
+          var framerate = dashStreamInfo[i].parseFramerate();
+
+          var resolution = VideoResolution(width, height);
+          var streamInfo = VideoStreamInfo(itag, url, contentLength, bitrate, resolution, framerate);
+          videoStreamInfoMap[itag] = streamInfo;
+        }
+      }
     }
 
     // Get the raw HLS stream playlist (*.m3u8)
