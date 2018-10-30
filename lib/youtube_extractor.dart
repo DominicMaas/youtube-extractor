@@ -1,4 +1,5 @@
 import 'package:http/http.dart' as http;
+import 'src/internal/parsers/dash_manifest_parser.dart';
 import 'src/exceptions/parse_exception.dart';
 import 'src/exceptions/video_requires_purchase_exception.dart';
 import 'src/exceptions/video_unavailable_exception.dart';
@@ -58,7 +59,10 @@ class YouTubeExtractor {
       var itag = muxedStreamInfo[i].parseItag();
 
       // Skip unknown itags
-      if (ItagHelper.isKnown(itag)) {
+      if (!ItagHelper.isKnown(itag)) {
+        continue;
+      }
+
         // Extract URL
         var url = muxedStreamInfo[i].parseUrl();
 
@@ -80,7 +84,6 @@ class YouTubeExtractor {
           var streamInfo = MuxedStreamInfo(itag, url, contentLength);
           muxedStreamInfoMap[itag] = streamInfo;
         }
-      }
     }
 
     // Parse adaptive stream infos
@@ -90,7 +93,10 @@ class YouTubeExtractor {
       var itag = adaptiveStreamInfo[i].parseItag();
 
       // Skip unknown itags
-      if (ItagHelper.isKnown(itag)) {
+      if (!ItagHelper.isKnown(itag)) {
+        continue;
+      }
+
         // Extract content length
         var contentLength = adaptiveStreamInfo[i].parseContentLength();
 
@@ -127,7 +133,6 @@ class YouTubeExtractor {
                 itag, url, contentLength, bitrate, resolution, framerate);
             videoStreamInfoMap[itag] = streamInfo;
           }
-        }
       }
     }
 
@@ -138,6 +143,31 @@ class YouTubeExtractor {
       var signature = RegExp(r"/s/(.*?)(?:/|$)", multiLine: true)
           .firstMatch(dashManifestUrl)
           .group(1);
+
+      // Decipher signature if needed
+      if (signature != null && signature.isNotEmpty) {
+        var playerSource = await _getVideoPlayerSourceAsync(playerContext.sourceUrl);
+        signature = playerSource.decipher(signature);
+        dashManifestUrl = dashManifestUrl + '&signature=' + signature;
+      }
+
+      // Get the dash manifest parser
+      var dashManifestRaw = (await _client.get(dashManifestUrl)).body;
+      var dashManifestParser = DashManifestParser.initialize(dashManifestRaw);
+
+      // Parse dash stream infos
+      var dashStreamInfo = dashManifestParser.getStreamInfo();
+      for (var i = 0; i < dashStreamInfo.length; i++) {
+        // Extract itag
+        var itag = dashStreamInfo[i].parseItag();
+
+        // Skip unknown itags
+        if (!ItagHelper.isKnown(itag)) {
+          continue;
+        }
+        
+      }
+
       print(signature);
     }
 
