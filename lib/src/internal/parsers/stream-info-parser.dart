@@ -1,7 +1,7 @@
 import 'package:xml/xml.dart' as xml;
 
 class StreamInfoParser {
-  xml.XmlDocument _root;
+  xml.XmlElement _root;
 
   StreamInfoParser(this._root);
 
