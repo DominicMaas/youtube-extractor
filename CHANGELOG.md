@@ -2,6 +2,8 @@
 - Library now follows standard practices.
 - Reuse http client for all requests.
 - Rename main method.
+- Added Dash support.
+- Fixed misc bugs.
 
 # 0.1.1
 - Import `dart:async`.
@@ -9,4 +11,4 @@
 - Run `dartfmt`.
 
 # 0.1.0
-- Intial beta release.
+- Initial beta release.
