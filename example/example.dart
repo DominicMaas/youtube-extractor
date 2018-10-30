@@ -14,5 +14,5 @@ main() async {
 
   // Get information for a live YouTube video
   var livestream = await extractor.getMediaStreamsAsync('mSQIX_G3TjU');
-  var i = 0;
+  print('Livestream URL: ${livestream.hlsLiveStreamUrl}');
 }
