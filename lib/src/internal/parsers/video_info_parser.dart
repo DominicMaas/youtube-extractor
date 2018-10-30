@@ -8,7 +8,8 @@ class VideoInfoParser {
 
   String parseId() => _root["video_id"];
 
-  int parseErrorCode() => _root['errorcode'] == null ? 0 : int.tryParse(_root['errorcode']);
+  int parseErrorCode() =>
+      _root['errorcode'] == null ? 0 : int.tryParse(_root['errorcode']);
 
   String parseErrorReason() => _root["reason"];
 

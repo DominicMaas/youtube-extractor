@@ -140,7 +140,8 @@ class YouTubeExtractor {
     var dashManifestUrl = parser.parseDashManifestUrl();
     if (dashManifestUrl != null) {
       // Parse signature
-      var signature = RegExp(r'/s/(.*?)(?:/|$)').firstMatch(dashManifestUrl)?.group(1);
+      var signature =
+          RegExp(r'/s/(.*?)(?:/|$)').firstMatch(dashManifestUrl)?.group(1);
 
       // Decipher signature if needed
       if (signature != null && signature.isNotEmpty) {
@@ -181,7 +182,8 @@ class YouTubeExtractor {
           var framerate = dashStreamInfo[i].parseFramerate();
 
           var resolution = VideoResolution(width, height);
-          var streamInfo = VideoStreamInfo(itag, url, contentLength, bitrate, resolution, framerate);
+          var streamInfo = VideoStreamInfo(
+              itag, url, contentLength, bitrate, resolution, framerate);
           videoStreamInfoMap[itag] = streamInfo;
         }
       }
