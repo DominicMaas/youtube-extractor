@@ -12,6 +12,4 @@ main() async {
 
   var streamInfo2 = await extractor.getMediaStreamsAsync('j3YQAoN2wGM');
   print('Audio URL: ${streamInfo2.video.first.url}');
-
- 
 }

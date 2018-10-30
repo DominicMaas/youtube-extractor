@@ -63,27 +63,27 @@ class YouTubeExtractor {
         continue;
       }
 
-        // Extract URL
-        var url = muxedStreamInfo[i].parseUrl();
+      // Extract URL
+      var url = muxedStreamInfo[i].parseUrl();
 
-        // Decipher signature if needed
-        var signature = muxedStreamInfo[i].parseSignature();
-        if (signature != null) {
-          var playerSource =
-              await _getVideoPlayerSourceAsync(playerContext.sourceUrl);
-          signature = playerSource.decipher(signature);
-          url = url + '&signature=' + signature;
-        }
+      // Decipher signature if needed
+      var signature = muxedStreamInfo[i].parseSignature();
+      if (signature != null) {
+        var playerSource =
+            await _getVideoPlayerSourceAsync(playerContext.sourceUrl);
+        signature = playerSource.decipher(signature);
+        url = url + '&signature=' + signature;
+      }
 
-        // Probe stream and get content length
-        var probe = await _client.head(url);
-        int contentLength = int.tryParse(probe.headers['content-length']);
+      // Probe stream and get content length
+      var probe = await _client.head(url);
+      int contentLength = int.tryParse(probe.headers['content-length']);
 
-        // If probe failed or content length is 0, it means the stream is gone or faulty
-        if (contentLength > 0) {
-          var streamInfo = MuxedStreamInfo(itag, url, contentLength);
-          muxedStreamInfoMap[itag] = streamInfo;
-        }
+      // If probe failed or content length is 0, it means the stream is gone or faulty
+      if (contentLength > 0) {
+        var streamInfo = MuxedStreamInfo(itag, url, contentLength);
+        muxedStreamInfoMap[itag] = streamInfo;
+      }
     }
 
     // Parse adaptive stream infos
@@ -97,42 +97,42 @@ class YouTubeExtractor {
         continue;
       }
 
-        // Extract content length
-        var contentLength = adaptiveStreamInfo[i].parseContentLength();
+      // Extract content length
+      var contentLength = adaptiveStreamInfo[i].parseContentLength();
 
-        // If content length is 0, it means that the stream is gone or faulty
-        if (contentLength > 0) {
-          // Extract URL
-          var url = adaptiveStreamInfo[i].parseUrl();
+      // If content length is 0, it means that the stream is gone or faulty
+      if (contentLength > 0) {
+        // Extract URL
+        var url = adaptiveStreamInfo[i].parseUrl();
 
-          // Decipher signature if needed
-          var signature = adaptiveStreamInfo[i].parseSignature();
-          if (signature != null) {
-            var playerSource =
-                await _getVideoPlayerSourceAsync(playerContext.sourceUrl);
-            signature = playerSource.decipher(signature);
-            url = url + '&signature=' + signature;
-          }
+        // Decipher signature if needed
+        var signature = adaptiveStreamInfo[i].parseSignature();
+        if (signature != null) {
+          var playerSource =
+              await _getVideoPlayerSourceAsync(playerContext.sourceUrl);
+          signature = playerSource.decipher(signature);
+          url = url + '&signature=' + signature;
+        }
 
-          // Extract bitrate
-          var bitrate = adaptiveStreamInfo[i].parseBitrate();
+        // Extract bitrate
+        var bitrate = adaptiveStreamInfo[i].parseBitrate();
 
-          // If audio-only
-          if (adaptiveStreamInfo[i].parseIsAudioOnly()) {
-            var streamInfo = AudioStreamInfo(itag, url, contentLength, bitrate);
-            audioStreamInfoMap[itag] = streamInfo;
-          } else {
-            // If video-only
-            // Extract info
-            var width = adaptiveStreamInfo[i].parseWidth();
-            var height = adaptiveStreamInfo[i].parseHeight();
-            var framerate = adaptiveStreamInfo[i].parseFramerate();
+        // If audio-only
+        if (adaptiveStreamInfo[i].parseIsAudioOnly()) {
+          var streamInfo = AudioStreamInfo(itag, url, contentLength, bitrate);
+          audioStreamInfoMap[itag] = streamInfo;
+        } else {
+          // If video-only
+          // Extract info
+          var width = adaptiveStreamInfo[i].parseWidth();
+          var height = adaptiveStreamInfo[i].parseHeight();
+          var framerate = adaptiveStreamInfo[i].parseFramerate();
 
-            var resolution = VideoResolution(width, height);
-            var streamInfo = VideoStreamInfo(
-                itag, url, contentLength, bitrate, resolution, framerate);
-            videoStreamInfoMap[itag] = streamInfo;
-          }
+          var resolution = VideoResolution(width, height);
+          var streamInfo = VideoStreamInfo(
+              itag, url, contentLength, bitrate, resolution, framerate);
+          videoStreamInfoMap[itag] = streamInfo;
+        }
       }
     }
 
@@ -146,7 +146,8 @@ class YouTubeExtractor {
 
       // Decipher signature if needed
       if (signature != null && signature.isNotEmpty) {
-        var playerSource = await _getVideoPlayerSourceAsync(playerContext.sourceUrl);
+        var playerSource =
+            await _getVideoPlayerSourceAsync(playerContext.sourceUrl);
         signature = playerSource.decipher(signature);
         dashManifestUrl = dashManifestUrl + '&signature=' + signature;
       }
@@ -165,7 +166,6 @@ class YouTubeExtractor {
         if (!ItagHelper.isKnown(itag)) {
           continue;
         }
-        
       }
 
       print(signature);
@@ -250,7 +250,7 @@ class YouTubeExtractor {
     // For that we also need to make sure the video is fully available by checking for errors.
     if (sts != null && sts.isNotEmpty && parser.parseErrorCode() != 0) {
       parser = await _getVideoInfoParserAsync(videoId, "detailpage", sts);
-      
+
       // If there are still errors - throw
       if (parser.parseErrorCode() != 0) {
         // Get native error code and error reason

@@ -1,4 +1,3 @@
-
 import '../../exceptions/parse_exception.dart';
 import '../cipher_operations/base_cipher_operation.dart';
 import '../cipher_operations/reverse_cipher_operation.dart';
