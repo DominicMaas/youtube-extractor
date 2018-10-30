@@ -1,5 +1,8 @@
 # YouTube Extractor
 
+[![Pub](https://img.shields.io/pub/v/youtube_extractor.svg)](https://pub.dartlang.org/packages/youtube_extractor)
+
+
 YouTube Extractor is a library for Dart (and Flutter) that provides an interface to resolve and download YouTube video and audio streams. This library is being primarily developed to provide YouTube support for the mobile SoundByte apps. 
 
 YouTube Extractor is a port of [YouTubeExplode](https://github.com/Tyrrrz/YoutubeExplode) for Dart (minus some extra features that were not needed).
