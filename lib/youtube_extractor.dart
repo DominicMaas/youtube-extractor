@@ -17,102 +17,16 @@ import 'dart:async';
 
 /// Dart port of YouTubeExplode
 class YouTubeExtractor {
-  Map<String, PlayerSource> _playerSourceCache = Map<String, PlayerSource>();
+  // Stores the player source cache as this is used a lot
+  var _playerSourceCache = Map<String, PlayerSource>();
 
-  Future<PlayerContext> _getVideoPlayerContextAsync(String videoId) async {
-    // Build the required url and get the response
-    var url =
-        'https://www.youtube.com/embed/$videoId?disable_polymer=true&hl=en';
-    var body = (await http.get(url)).body;
-
-    // Extract the config part
-    var config =
-        RegExp(r"yt\.setConfig\({'PLAYER_CONFIG':.+?\}\);", multiLine: true)
-            .firstMatch(body)
-            .group(0);
-
-    // Trip off the start and end to get a valid JSON string
-    config = config.substring(30, config.length - 3);
-
-    // Decode the json
-    var root = json.decode(config);
-
-    // Get the player source url
-    var playerSourceUrl = root["assets"]["js"].toString();
-    if (playerSourceUrl != null && playerSourceUrl.isNotEmpty) {
-      playerSourceUrl = "https://www.youtube.com" + playerSourceUrl;
-    }
-
-    // Get the sts
-    var sts = root["sts"].toString();
-
-    // Check if successful
-    if (playerSourceUrl == null ||
-        playerSourceUrl.isEmpty ||
-        sts == null ||
-        sts.isEmpty) throw ParseException("Could not parse player context.");
-
-    return PlayerContext(playerSourceUrl, sts);
-  }
-
-  Future<VideoInfoParser> _getVideoInfoParserAsync(
-      String videoId, String el, String sts) async {
-    // This parameter does magic and a lot of videos don't work without it
-    var eurl = Uri.encodeFull('https://youtube.googleapis.com/v/$videoId');
-
-    // Build the url and perform a request
-    var url =
-        "https://www.youtube.com/get_video_info?video_id=$videoId&el=$el&sts=$sts&eurl=$eurl&hl=en";
-    var body = (await http.get(url)).body;
-
-    var parser = VideoInfoParser.initialize(body);
-
-    var root = Uri.splitQueryString(body);
-
-    // Check if video exists by verifying that video ID property is not empty
-    if (root['video_id'] == null || root['video_id'].isEmpty) {
-      // Get native error code and error reason
-      var errorCode = int.tryParse(root['errorcode']);
-      var errorReason = root['reason'];
-
-      throw new VideoUnavailableException(videoId, errorCode, errorReason);
-    }
-
-    // If requested with "sts" parameter, it means that the calling code is interested in getting video info with streams.
-    // For that we also need to make sure the video is fully available by checking for errors.
-    if (sts != null &&
-        sts.isNotEmpty &&
-        root['errorcode'] != null &&
-        int.tryParse(root['errorcode']) != 0) {
-      parser = await _getVideoInfoParserAsync(videoId, "detailpage", sts);
-    }
-
-    // Return the split string
-    return parser;
-  }
-
-  Future<PlayerSource> _getVideoPlayerSourceAsync(String sourceUrl) async {
-    // Try to resolve from cache first
-    var playerSource = _playerSourceCache[sourceUrl];
-    if (playerSource != null) {
-      return playerSource;
-    }
-
-    // Get parser
-    var raw = (await http.get(sourceUrl)).body;
-    var parser = PlayerSourceParser.initialize(raw);
-
-    // Extract cipher operations
-    var operations = parser.parseCipherOperations();
-
-    return _playerSourceCache[sourceUrl] = PlayerSource(operations);
-  }
+  // Client used for http requests
+  var _client = new http.Client();
 
   /// Gets a set of all available media stream infos for given video.
-  Future<MediaStreamInfoSet> getVideoMediaStreamInfosAsync(
-      String videoId) async {
+  Future<MediaStreamInfoSet> getMediaStreamsAsync(String videoId) async {
     // Make sure the ID is valid
-    if (!validateVideoId(videoId)) {
+    if (!_validateVideoId(videoId)) {
       throw ArgumentError('Invalid YouTube video ID [$videoId].');
     }
 
@@ -212,7 +126,6 @@ class YouTubeExtractor {
         }
       }
     }
-    ;
 
     // Parse dash manifest
     var dashManifestUrl = parser.parseDashManifestUrl();
@@ -232,12 +145,106 @@ class YouTubeExtractor {
     var audioStreamInfos = audioStreamInfoMap.values.toList();
     var videoStreamInfos = videoStreamInfoMap.values.toList();
 
+    // We are done with the client
+    _client.close();
+
     return MediaStreamInfoSet(
         muxedStreamInfos, audioStreamInfos, videoStreamInfos, hlsPlaylistUrl);
   }
 
+  // -- PRIVATE METHODS -- //
+
+  Future<PlayerContext> _getVideoPlayerContextAsync(String videoId) async {
+    // Build the required url and get the response
+    var url =
+        'https://www.youtube.com/embed/$videoId?disable_polymer=true&hl=en';
+    var body = (await _client.get(url)).body;
+
+    // Extract the config part
+    var config =
+        RegExp(r"yt\.setConfig\({'PLAYER_CONFIG':.+?\}\);", multiLine: true)
+            .firstMatch(body)
+            .group(0);
+
+    // Trip off the start and end to get a valid JSON string
+    config = config.substring(30, config.length - 3);
+
+    // Decode the json
+    var root = json.decode(config);
+
+    // Get the player source url
+    var playerSourceUrl = root["assets"]["js"].toString();
+    if (playerSourceUrl != null && playerSourceUrl.isNotEmpty) {
+      playerSourceUrl = "https://www.youtube.com" + playerSourceUrl;
+    }
+
+    // Get the sts
+    var sts = root["sts"].toString();
+
+    // Check if successful
+    if (playerSourceUrl == null ||
+        playerSourceUrl.isEmpty ||
+        sts == null ||
+        sts.isEmpty) throw ParseException("Could not parse player context.");
+
+    return PlayerContext(playerSourceUrl, sts);
+  }
+
+  Future<VideoInfoParser> _getVideoInfoParserAsync(
+      String videoId, String el, String sts) async {
+    // This parameter does magic and a lot of videos don't work without it
+    var eurl = Uri.encodeFull('https://youtube.googleapis.com/v/$videoId');
+
+    // Build the url and perform a request
+    var url =
+        "https://www.youtube.com/get_video_info?video_id=$videoId&el=$el&sts=$sts&eurl=$eurl&hl=en";
+    var body = (await _client.get(url)).body;
+
+    var parser = VideoInfoParser.initialize(body);
+
+    var root = Uri.splitQueryString(body);
+
+    // Check if video exists by verifying that video ID property is not empty
+    if (root['video_id'] == null || root['video_id'].isEmpty) {
+      // Get native error code and error reason
+      var errorCode = int.tryParse(root['errorcode']);
+      var errorReason = root['reason'];
+
+      throw new VideoUnavailableException(videoId, errorCode, errorReason);
+    }
+
+    // If requested with "sts" parameter, it means that the calling code is interested in getting video info with streams.
+    // For that we also need to make sure the video is fully available by checking for errors.
+    if (sts != null &&
+        sts.isNotEmpty &&
+        root['errorcode'] != null &&
+        int.tryParse(root['errorcode']) != 0) {
+      parser = await _getVideoInfoParserAsync(videoId, "detailpage", sts);
+    }
+
+    // Return the split string
+    return parser;
+  }
+
+  Future<PlayerSource> _getVideoPlayerSourceAsync(String sourceUrl) async {
+    // Try to resolve from cache first
+    var playerSource = _playerSourceCache[sourceUrl];
+    if (playerSource != null) {
+      return playerSource;
+    }
+
+    // Get parser
+    var raw = (await _client.get(sourceUrl)).body;
+    var parser = PlayerSourceParser.initialize(raw);
+
+    // Extract cipher operations
+    var operations = parser.parseCipherOperations();
+
+    return _playerSourceCache[sourceUrl] = PlayerSource(operations);
+  }
+
   /// Verifies that the given string is syntactically a valid YouTube video ID.
-  bool validateVideoId(String videoId) {
+  bool _validateVideoId(String videoId) {
     // The user has not passed in a video ID at all
     if (videoId == null || videoId.isEmpty) {
       return false;
