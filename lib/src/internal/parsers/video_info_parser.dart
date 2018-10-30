@@ -12,7 +12,7 @@ class VideoInfoParser {
 
   String parseHlsPlaylistUrl() => _root["hlsvp"];
 
-  List<MuxedStreamInfoParser> getMuxedStreamInfos() {
+  List<MuxedStreamInfoParser> getMuxedStreamInfo() {
     var streamInfosEncoded = _root['url_encoded_fmt_stream_map'];
 
     if (streamInfosEncoded == null) {
@@ -31,7 +31,7 @@ class VideoInfoParser {
     return builtList;
   }
 
-  List<AdaptiveStreamInfoParser> getAdaptiveStreamInfos() {
+  List<AdaptiveStreamInfoParser> getAdaptiveStreamInfo() {
     var streamInfosEncoded = _root['adaptive_fmts'];
 
     if (streamInfosEncoded == null) {

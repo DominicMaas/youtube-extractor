@@ -21,7 +21,7 @@ class YouTubeExtractor {
   var _playerSourceCache = Map<String, PlayerSource>();
 
   // Client used for http requests
-  var _client = new http.Client();
+  var _client = http.Client();
 
   /// Gets a set of all available media stream infos for given video.
   Future<MediaStreamInfoSet> getMediaStreamsAsync(String videoId) async {
@@ -29,6 +29,9 @@ class YouTubeExtractor {
     if (!_validateVideoId(videoId)) {
       throw ArgumentError('Invalid YouTube video ID [$videoId].');
     }
+
+    // Create the http client
+    _client = http.Client();
 
     // Get player context
     var playerContext = await _getVideoPlayerContextAsync(videoId);
@@ -49,7 +52,7 @@ class YouTubeExtractor {
     var videoStreamInfoMap = new Map<int, VideoStreamInfo>();
 
     // Parse muxed stream infos
-    var muxedStreamInfo = parser.getMuxedStreamInfos();
+    var muxedStreamInfo = parser.getMuxedStreamInfo();
     for (var i = 0; i < muxedStreamInfo.length; i++) {
       // Extract itag
       var itag = muxedStreamInfo[i].parseItag();
@@ -69,7 +72,8 @@ class YouTubeExtractor {
         }
 
         // Probe stream and get content length
-        int contentLength = 10; //TODO
+        var probe = await _client.head(url);
+        int contentLength = int.tryParse(probe.headers['content-length']);
 
         // If probe failed or content length is 0, it means the stream is gone or faulty
         if (contentLength > 0) {
@@ -80,7 +84,7 @@ class YouTubeExtractor {
     }
 
     // Parse adaptive stream infos
-    var adaptiveStreamInfo = parser.getAdaptiveStreamInfos();
+    var adaptiveStreamInfo = parser.getAdaptiveStreamInfo();
     for (var i = 0; i < adaptiveStreamInfo.length; i++) {
       // Extract itag
       var itag = adaptiveStreamInfo[i].parseItag();
@@ -220,6 +224,7 @@ class YouTubeExtractor {
         root['errorcode'] != null &&
         int.tryParse(root['errorcode']) != 0) {
       parser = await _getVideoInfoParserAsync(videoId, "detailpage", sts);
+      // TODO
     }
 
     // Return the split string
