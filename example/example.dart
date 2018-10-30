@@ -4,12 +4,15 @@ import 'package:youtube_extractor/youtube_extractor.dart';
 var extractor = YouTubeExtractor();
 
 main() async {
-  // Get the stream info for the passed video
-  var streamInfo = await extractor.getMediaStreamsAsync('a1ExYqrBJio');
+  // Get and print the audio info for the passed video (music)
+  var audioInfo = await extractor.getMediaStreamsAsync('a1ExYqrBJio');
+  print('Audio URL: ${audioInfo.audio.first.url}');
 
-  // Print the audio stream url
-  print('Audio URL: ${streamInfo.audio.first.url}');
+  // Get and print the video info for the passed video (ltt)
+  var videoInfo = await extractor.getMediaStreamsAsync('j3YQAoN2wGM');
+  print('Video URL: ${videoInfo.video.first.url}');
 
-  var streamInfo2 = await extractor.getMediaStreamsAsync('j3YQAoN2wGM');
-  print('Audio URL: ${streamInfo2.video.first.url}');
+  // Get information for a live YouTube video
+  var livestream = await extractor.getMediaStreamsAsync('mSQIX_G3TjU');
+  var i = 0;
 }

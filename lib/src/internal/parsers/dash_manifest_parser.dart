@@ -6,12 +6,9 @@ class DashManifestParser {
 
   DashManifestParser(this._root);
 
-  List<StreamInfoParser> getStreamInfo() {
-    var streamInfosXml = _root.findAllElements('Representation');
-    
-    // Filter out partial streams
-    streamInfosXml = streamInfosXml.where((x) => x.findAllElements('Representation')?.first?.attributes?.firstWhere((y) => y.name == 'sourceURL')?.value?.contains('sq/') != true);
-
+  List<StreamInfoParser> getStreamInfo() {    
+    var streamInfosXml = _root.descendants.where((x) => x is xml.XmlElement && x.name.local == 'Representation').toList();
+     
     // List that we will full
     var builtList = List<StreamInfoParser>();
 

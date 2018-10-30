@@ -140,16 +140,14 @@ class YouTubeExtractor {
     var dashManifestUrl = parser.parseDashManifestUrl();
     if (dashManifestUrl != null) {
       // Parse signature
-      var signature = RegExp(r"/s/(.*?)(?:/|$)", multiLine: true)
-          .firstMatch(dashManifestUrl)
-          .group(1);
+      var signature = RegExp(r'/s/(.*?)(?:/|$)').firstMatch(dashManifestUrl)?.group(1);
 
       // Decipher signature if needed
       if (signature != null && signature.isNotEmpty) {
         var playerSource =
             await _getVideoPlayerSourceAsync(playerContext.sourceUrl);
         signature = playerSource.decipher(signature);
-        dashManifestUrl = dashManifestUrl + '&signature=' + signature;
+        dashManifestUrl = dashManifestUrl + '?signature=' + signature;
       }
 
       // Get the dash manifest parser
