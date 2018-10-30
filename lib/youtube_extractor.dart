@@ -204,27 +204,31 @@ class YouTubeExtractor {
         "https://www.youtube.com/get_video_info?video_id=$videoId&el=$el&sts=$sts&eurl=$eurl&hl=en";
     var body = (await _client.get(url)).body;
 
+    // Parse the response
     var parser = VideoInfoParser.initialize(body);
 
-    var root = Uri.splitQueryString(body);
-
     // Check if video exists by verifying that video ID property is not empty
-    if (root['video_id'] == null || root['video_id'].isEmpty) {
+    if (parser.parseId() == null) {
       // Get native error code and error reason
-      var errorCode = int.tryParse(root['errorcode']);
-      var errorReason = root['reason'];
+      var errorCode = parser.parseErrorCode();
+      var errorReason = parser.parseErrorReason();
 
       throw new VideoUnavailableException(videoId, errorCode, errorReason);
     }
 
     // If requested with "sts" parameter, it means that the calling code is interested in getting video info with streams.
     // For that we also need to make sure the video is fully available by checking for errors.
-    if (sts != null &&
-        sts.isNotEmpty &&
-        root['errorcode'] != null &&
-        int.tryParse(root['errorcode']) != 0) {
+    if (sts != null && sts.isNotEmpty && parser.parseErrorCode() != 0) {
       parser = await _getVideoInfoParserAsync(videoId, "detailpage", sts);
-      // TODO
+      
+      // If there are still errors - throw
+      if (parser.parseErrorCode() != 0) {
+        // Get native error code and error reason
+        var errorCode = parser.parseErrorCode();
+        var errorReason = parser.parseErrorReason();
+
+        throw VideoUnavailableException(videoId, errorCode, errorReason);
+      }
     }
 
     // Return the split string

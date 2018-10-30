@@ -6,6 +6,12 @@ class VideoInfoParser {
 
   VideoInfoParser(this._root);
 
+  String parseId() => _root["video_id"];
+
+  int parseErrorCode() => int.tryParse(_root['errorcode']);
+
+  String parseErrorReason() => _root["reason"];
+
   String parsePreviewVideoId() => _root['ypc_vid'];
 
   String parseDashManifestUrl() => _root["dashmpd"];
