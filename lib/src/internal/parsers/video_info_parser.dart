@@ -1,5 +1,5 @@
-import 'package:youtube_extractor/internal/parsers/adaptive_stream_info_parser.dart';
-import 'package:youtube_extractor/internal/parsers/muxed_stream_info_parser.dart';
+import 'adaptive_stream_info_parser.dart';
+import 'muxed_stream_info_parser.dart';
 
 class VideoInfoParser {
   Map<String, String> _root;

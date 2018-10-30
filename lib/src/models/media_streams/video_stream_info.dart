@@ -1,8 +1,8 @@
-import 'package:youtube_extractor/internal/itag_helper.dart';
-import 'package:youtube_extractor/models/media_streams/media_stream_info.dart';
-import 'package:youtube_extractor/models/media_streams/video_encoding.dart';
-import 'package:youtube_extractor/models/media_streams/video_quality.dart';
-import 'package:youtube_extractor/models/media_streams/video_resolution.dart';
+import '../../internal/itag_helper.dart';
+import 'media_stream_info.dart';
+import 'video_encoding.dart';
+import 'video_quality.dart';
+import 'video_resolution.dart';
 
 /// Metadata associated with a certain [MediaStream] that contains only video.
 class VideoStreamInfo extends MediaStreamInfo {

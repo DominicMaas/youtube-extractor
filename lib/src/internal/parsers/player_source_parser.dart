@@ -1,8 +1,9 @@
-import 'package:youtube_extractor/exceptions/parse_exception.dart';
-import 'package:youtube_extractor/internal/cipher_operations/base_cipher_operation.dart';
-import 'package:youtube_extractor/internal/cipher_operations/reverse_cipher_operation.dart';
-import 'package:youtube_extractor/internal/cipher_operations/slice_cipher_operation.dart';
-import 'package:youtube_extractor/internal/cipher_operations/swap_cipher_operation.dart';
+
+import '../../exceptions/parse_exception.dart';
+import '../cipher_operations/base_cipher_operation.dart';
+import '../cipher_operations/reverse_cipher_operation.dart';
+import '../cipher_operations/slice_cipher_operation.dart';
+import '../cipher_operations/swap_cipher_operation.dart';
 
 class PlayerSourceParser {
   String _raw;

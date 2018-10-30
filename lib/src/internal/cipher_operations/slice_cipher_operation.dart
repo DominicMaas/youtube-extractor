@@ -1,4 +1,4 @@
-import 'package:youtube_extractor/internal/cipher_operations/base_cipher_operation.dart';
+import 'base_cipher_operation.dart';
 
 class SliceCipherOperation implements BaseCipherOperation {
   int _index;

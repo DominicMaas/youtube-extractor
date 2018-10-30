@@ -1,6 +1,5 @@
 // This file shows a demostration on how to use the library.
-
-import '../lib/youtube_extractor.dart';
+import 'package:youtube_extractor/youtube_extractor.dart';
 
 main() async {
   // Get the stream info for the passed video
