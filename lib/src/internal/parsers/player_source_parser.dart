@@ -17,9 +17,9 @@ class PlayerSourceParser {
     // Sourced from https://github.com/Tyrrrz/YoutubeExplode/blob/6227f90d974e75b342c803f076f9d2688d0f403c/YoutubeExplode/Internal/Parsers/PlayerSourceParser.cs
 
     // Find the name of the function that handles deciphering
-    var entryPoint = RegExp(r"(\w+)&&(\w+)\.set\(\w+,(\w+)\(\1\)\);return\s+\2")
+    var entryPoint = RegExp(r"\bc\s*&&\s*d\.set\([^,]+\s*,\s*\([^)]*\)\s*\(\s*([a-zA-Z0-9$]+)\(")
         .firstMatch(_raw)
-        .group(3);
+        .group(1);
     if (entryPoint == null) {
       throw ParseException(
           'Could not find the entry function for signature deciphering.');
