@@ -1,3 +1,6 @@
+# 1.0.1
+- Fixed crash caused by YouTube API change.
+
 # 1.0.0
 - Library now follows standard practices.
 - Reuse http client for all requests.
