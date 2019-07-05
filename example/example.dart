@@ -17,8 +17,9 @@ main() async {
   print('Video URL: ${videoInfo.video.first.url}');
 
   // Get information for a live YouTube video
-  var livestream = await extractor.getMediaStreamsAsync('mSQIX_G3TjU');
-  print('Livestream URL: ${livestream.hlsLiveStreamUrl}');
+  // 'mSQIX_G3TjU' Live video is currently not available
+  // var livestream = await extractor.getMediaStreamsAsync('mSQIX_G3TjU');
+  // print('Livestream URL: ${livestream.hlsLiveStreamUrl}');
 
   // Another test
   var previousBrokenStream = await extractor.getMediaStreamsAsync('m7Bc3pLyij0');
