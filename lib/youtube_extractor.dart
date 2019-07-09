@@ -111,7 +111,14 @@ class YouTubeExtractor {
           var playerSource =
               await _getVideoPlayerSourceAsync(playerContext.sourceUrl);
           signature = playerSource.decipher(signature);
-          url = url + '&signature=' + signature;
+
+          // parameter 'ratebypass' needs to be yes
+          // if there is 'sp' parameter, must use 'sig' instead of 'signature'
+          if (adaptiveStreamInfo[i].parseSp() != null) {
+            url = url + '&ratebypass=yes&${adaptiveStreamInfo[i].parseSp()}=' + signature;
+          } else {
+            url = url + '&ratebypass=yes&signature=' + signature;
+          }
         }
 
         // Extract bitrate
@@ -248,8 +255,11 @@ class YouTubeExtractor {
     var eurl = Uri.encodeFull('https://youtube.googleapis.com/v/$videoId');
 
     // Build the url and perform a request
+    // For some reasons, 'sts' parameter isn't required. but if value of 'sts' is null then, the request emit a Error. 
+    // previous variable
+    // var url = "https://www.youtube.com/get_video_info?video_id=$videoId&el=$el&sts=$sts&eurl=$eurl&hl=en";
     var url =
-        "https://www.youtube.com/get_video_info?video_id=$videoId&el=$el&sts=$sts&eurl=$eurl&hl=en";
+        "https://www.youtube.com/get_video_info?video_id=$videoId&el=$el&eurl=$eurl&hl=en";
     var body = (await _client.get(url)).body;
 
     // Parse the response
