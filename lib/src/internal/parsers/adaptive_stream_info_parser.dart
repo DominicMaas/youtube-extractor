@@ -9,6 +9,9 @@ class AdaptiveStreamInfoParser {
 
   String parseSignature() => _root['s'];
 
+  // if there is &sp=sig signiture parameter must name 'sig' instead of 'signiture'
+  String parseSp() => _root['sp'];
+
   int parseContentLength() => _getInt(_root['clen']);
 
   int parseBitrate() => _getInt(_root['bitrate']);
