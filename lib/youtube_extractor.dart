@@ -115,7 +115,9 @@ class YouTubeExtractor {
           // parameter 'ratebypass' needs to be yes
           // if there is 'sp' parameter, must use 'sig' instead of 'signature'
           if (adaptiveStreamInfo[i].parseSp() != null) {
-            url = url + '&ratebypass=yes&${adaptiveStreamInfo[i].parseSp()}=' + signature;
+            url = url +
+                '&ratebypass=yes&${adaptiveStreamInfo[i].parseSp()}=' +
+                signature;
           } else {
             url = url + '&ratebypass=yes&signature=' + signature;
           }
@@ -255,7 +257,7 @@ class YouTubeExtractor {
     var eurl = Uri.encodeFull('https://youtube.googleapis.com/v/$videoId');
 
     // Build the url and perform a request
-    // For some reasons, 'sts' parameter isn't required. but if value of 'sts' is null then, the request emit a Error. 
+    // For some reasons, 'sts' parameter isn't required. but if value of 'sts' is null then, the request emit a Error.
     // previous variable
     // var url = "https://www.youtube.com/get_video_info?video_id=$videoId&el=$el&sts=$sts&eurl=$eurl&hl=en";
     var url =
@@ -265,8 +267,10 @@ class YouTubeExtractor {
     // Parse the response
     var parser = VideoInfoParser.initialize(body);
 
-    // Check if video exists by verifying that video ID property is not empty
-    if (parser.parseId() == null) {
+    // getInfo properties have been changed that 'video_id' property is no longer provided.
+    // use 'status' property instead of 'video_id'
+    // Check if status exists by verifying that status property is 'ok'
+    if (parser.parseStatus() != 'ok') {
       // Get native error code and error reason
       var errorCode = parser.parseErrorCode();
       var errorReason = parser.parseErrorReason();
