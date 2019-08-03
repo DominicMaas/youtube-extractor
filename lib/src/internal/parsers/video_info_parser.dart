@@ -6,7 +6,9 @@ class VideoInfoParser {
 
   VideoInfoParser(this._root);
 
-  String parseId() => _root["video_id"];
+  String parseStatus() => _root['status'];
+
+  // String parseId() => _root["video_id"]; // no longer provided
 
   int parseErrorCode() =>
       _root['errorcode'] == null ? 0 : int.tryParse(_root['errorcode']);
