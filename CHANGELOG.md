@@ -1,3 +1,7 @@
+# 1.0.4
+
+- Fixed crash caused by YouTube API change thanks to @EddieJeong.
+
 # 1.0.3
 
 - Fixed crash caused by YouTube API change thanks to @EddieJeong.
