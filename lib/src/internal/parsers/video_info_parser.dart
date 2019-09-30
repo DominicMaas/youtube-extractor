@@ -1,8 +1,10 @@
 import 'adaptive_stream_info_parser.dart';
 import 'muxed_stream_info_parser.dart';
+import 'dart:convert';
 
 class VideoInfoParser {
   Map<String, String> _root;
+  bool isLive;
 
   VideoInfoParser(this._root);
 
@@ -17,9 +19,11 @@ class VideoInfoParser {
 
   String parsePreviewVideoId() => _root['ypc_vid'];
 
-  String parseDashManifestUrl() => _root["dashmpd"];
+  String parseDashManifestUrl() =>
+      jsonDecode(_root['player_response'])['streamingData']['dashManifestUrl'];
 
-  String parseHlsPlaylistUrl() => _root["hlsvp"];
+  String parseHlsPlaylistUrl() =>
+      jsonDecode(_root['player_response'])['streamingData']['hlsManifestUrl'];
 
   List<MuxedStreamInfoParser> getMuxedStreamInfo() {
     var streamInfosEncoded = _root['url_encoded_fmt_stream_map'];
