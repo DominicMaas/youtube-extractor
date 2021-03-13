@@ -1,3 +1,6 @@
+This project is no longer under development, please see https://github.com/Hexer10/youtube_explode_dart
+
+
 # YouTube Extractor
 
 [![Pub](https://img.shields.io/pub/v/youtube_extractor.svg)](https://pub.dartlang.org/packages/youtube_extractor)
