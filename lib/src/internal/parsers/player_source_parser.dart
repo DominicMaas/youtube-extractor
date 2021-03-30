@@ -36,9 +36,9 @@ class PlayerSourceParser {
     var entryPointLines = entryPointBody.split(';').toList();
 
     // Identify cipher functions
-    String reverseFuncName = null;
-    String sliceFuncName = null;
-    String charSwapFuncName = null;
+    String reverseFuncName;
+    String sliceFuncName;
+    String charSwapFuncName;
     var operations = new List<BaseCipherOperation>();
 
     // Analyze the function body to determine the names of cipher functions
